@@ -3,192 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="NexLab Models">
   <meta name="theme-color" content="#05070a">
-  <title>NexLab Forecast Models - Local Recreation</title>
+  <title>NexLab Six Panel Models</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="NexLab home">
-      <img class="brand-cloud" src="https://www.nexlabweather.com/img/logo-cloud-filled.svg" alt="">
-      <img class="brand-word" src="https://www.nexlabweather.com/img/logo-text.svg" alt="NexLab">
-    </a>
-    <nav class="nav" aria-label="Primary">
-      <a href="#">Weather Data</a>
-      <a href="#">Academics</a>
-      <a href="#">Storm Chasing</a>
-      <a href="#">Donate</a>
-      <a href="#">BETA Feedback</a>
-    </nav>
-    <div class="toolbar" aria-label="Page tools">
-      <button class="icon-button" type="button" title="Search" aria-label="Search">
-        <svg viewBox="0 0 24 24"><path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
-      </button>
-      <button id="themeToggle" class="icon-button" type="button" title="Toggle theme" aria-label="Toggle theme">
-        <svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.4-6.4L17 7M7 17l-1.4 1.4M18.4 18.4 17 17M7 7 5.6 5.6"/><circle cx="12" cy="12" r="4"/></svg>
-      </button>
+  <main id="app" class="app">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="eyebrow">Weather Data / Forecast Models</span>
+        <strong>Six Panel</strong>
+      </div>
+      <div id="status" class="status">Loading six panels...</div>
+      <div class="top-actions">
+        <button id="refreshAll" class="icon-button" type="button" title="Refresh all panels" aria-label="Refresh all panels">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+        </button>
+        <button id="expandApp" class="icon-button" type="button" title="Expand four panel" aria-label="Expand four panel">
+          <svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5M9 9 3 3M15 9l6-6M15 15l6 6M9 15l-6 6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="panelGrid" class="panel-grid" aria-label="Six model panels"></section>
+
+    <footer class="timebar">
+      <div class="transport" role="group" aria-label="Frame controls">
+        <button id="prevFrame" class="icon-button" type="button" title="Previous frame" aria-label="Previous frame">
+          <svg viewBox="0 0 24 24"><path d="m15 6-8 6 8 6V6Z"/></svg>
+        </button>
+        <button id="playPause" class="play-button" type="button" title="Play" aria-label="Play animation">
+          <svg viewBox="0 0 24 24"><path id="playIcon" d="M8 5v14l11-7L8 5Z"/></svg>
+        </button>
+        <button id="nextFrame" class="icon-button" type="button" title="Next frame" aria-label="Next frame">
+          <svg viewBox="0 0 24 24"><path d="m9 6 8 6-8 6V6Z"/></svg>
+        </button>
+      </div>
+      <input id="frameSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Valid time">
+      <output id="validTime">Valid time unavailable</output>
+    </footer>
+
+    <div id="productPicker" class="picker-backdrop" hidden>
+      <section class="product-picker" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+        <header>
+          <div>
+            <span class="eyebrow">Selected panel</span>
+            <h2 id="pickerTitle">Choose Product</h2>
+          </div>
+          <button id="closePicker" class="icon-button" type="button" title="Close" aria-label="Close product picker">
+            <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div id="productGroups" class="product-groups"></div>
+      </section>
     </div>
-  </header>
-
-  <main class="app-shell">
-    <aside class="sidebar" aria-label="Forecast model controls">
-      <section class="control-group">
-        <div class="group-title">MODEL</div>
-        <div id="modelButtons" class="option-grid model-grid"></div>
-      </section>
-      <section class="control-group">
-        <div class="group-title-row">
-          <div class="group-title">REGION</div>
-          <button id="defaultRegionButton" class="default-region-button" type="button" title="Set selected region as default" aria-label="Set selected region as default" aria-pressed="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>
-          </button>
-        </div>
-        <div id="regionButtons" class="option-grid"></div>
-      </section>
-      <section class="control-group">
-        <div class="group-title">PRODUCT</div>
-        <div id="productButtons" class="option-grid product-grid"></div>
-      </section>
-    </aside>
-
-    <section class="viewer" aria-label="Forecast model viewer">
-      <div class="viewer-head">
-        <div>
-          <p class="crumb">Weather Data / Forecast Models</p>
-          <h1 id="title">GFS - Continental US - Composite Reflectivity</h1>
-        </div>
-        <div class="run-head">
-          <div id="runPicker" class="run-picker" role="group" aria-label="Model run"></div>
-          <button id="frameInfoButton" class="frame-info-button" type="button">Frame info unavailable</button>
-        </div>
-      </div>
-
-      <figure class="map-wrap">
-        <div class="image-stage">
-          <img id="modelImage" class="model-image" alt="COD forecast model frame">
-          <canvas id="weatherCanvas" width="1320" height="780" aria-label="Synthetic weather model fallback"></canvas>
-          <div id="loadingStatus" class="loading-status">Loading COD model frames...</div>
-        </div>
-        <figcaption id="caption">
-          <span id="captionMain" class="caption-main">GFS | CONUS | Composite Reflectivity | Forecast hour 000</span>
-          <span id="captionRun" class="caption-run">Run Time: unavailable</span>
-        </figcaption>
-      </figure>
-
-      <div class="timeline-panel">
-        <div class="transport" role="group" aria-label="Animation controls">
-          <button id="firstFrame" class="icon-button" type="button" title="First frame" aria-label="First frame">
-            <svg viewBox="0 0 24 24"><path d="M6 5v14M18 6l-8 6 8 6V6Z"/></svg>
-          </button>
-          <button id="prevFrame" class="icon-button" type="button" title="Previous frame" aria-label="Previous frame">
-            <svg viewBox="0 0 24 24"><path d="m15 6-8 6 8 6V6Z"/></svg>
-          </button>
-          <button id="playPause" class="play-button" type="button" aria-label="Play animation">
-            <svg viewBox="0 0 24 24"><path id="playIcon" d="M8 5v14l11-7L8 5Z"/></svg>
-          </button>
-          <button id="nextFrame" class="icon-button" type="button" title="Next frame" aria-label="Next frame">
-            <svg viewBox="0 0 24 24"><path d="m9 6 8 6-8 6V6Z"/></svg>
-          </button>
-          <button id="lastFrame" class="icon-button" type="button" title="Last frame" aria-label="Last frame">
-            <svg viewBox="0 0 24 24"><path d="M18 5v14M6 6l8 6-8 6V6Z"/></svg>
-          </button>
-          <button id="expandViewer" class="icon-button" type="button" title="Expand viewer" aria-label="Expand viewer">
-            <svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5M9 9 3 3M15 9l6-6M15 15l6 6M9 15l-6 6"/></svg>
-          </button>
-        </div>
-        <div class="slider-wrap">
-          <input id="frameSlider" type="range" min="0" max="84" step="3" value="0" aria-label="Forecast hour">
-          <div id="sliderMarker" class="slider-marker" aria-hidden="true"><span>VT --</span></div>
-        </div>
-        <div id="frameTicks" class="frame-ticks" aria-hidden="true"></div>
-      </div>
-
-      <div class="loop-panel" aria-label="Loop settings">
-        <label class="speed-setting">
-          <span class="control-label-row"><span>Frame speed</span><output id="speedValue">0.65 sec</output></span>
-          <input id="speedSlider" type="range" min="100" max="1500" step="50" value="950" aria-label="Frame speed; move right for faster">
-          <span class="range-scale"><span>1.50 sec</span><span>0.10 sec</span></span>
-        </label>
-        <label>
-          <span>First frame hold</span>
-          <span class="unit-input"><input id="firstHold" type="number" min="0" max="5" step="0.1" value="0.9"><span>sec</span></span>
-        </label>
-        <label>
-          <span>Last frame hold</span>
-          <span class="unit-input"><input id="lastHold" type="number" min="0" max="5" step="0.1" value="1.4"><span>sec</span></span>
-        </label>
-        <label>
-          <span>Loop</span>
-          <select id="loopMode">
-            <option value="forward">Forward</option>
-            <option value="bounce">Rock</option>
-            <option value="once">Once</option>
-          </select>
-        </label>
-        <label class="checkbox-label">
-          <input id="preloadToggle" type="checkbox" checked>
-          <span>Preload frames</span>
-        </label>
-        <label class="checkbox-label">
-          <input id="autoRefreshToggle" type="checkbox" checked>
-          <span>Auto refresh</span>
-        </label>
-      </div>
-
-      <div id="hotkeyHelp" class="hotkey-help" hidden role="dialog" aria-modal="true" aria-labelledby="hotkeyHelpTitle">
-        <div class="hotkey-help-panel">
-          <div class="hotkey-help-head">
-            <h2 id="hotkeyHelpTitle">Hotkeys</h2>
-            <button id="closeHotkeyHelp" class="icon-button" type="button" title="Close hotkeys" aria-label="Close hotkeys">
-              <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <div class="hotkey-list">
-            <span><kbd>?</kbd> Hotkeys</span>
-            <span><kbd>Esc</kbd> Close</span>
-            <span><kbd>X</kbd> Expand</span>
-            <span><kbd>U</kbd> Continental U.S.</span>
-            <span><kbd>Space</kbd> Play / pause</span>
-            <span><kbd>Left</kbd>/<kbd>Right</kbd> Frame</span>
-            <span><kbd>Up</kbd>/<kbd>Down</kbd> Run time</span>
-            <span><kbd>0</kbd> 0-3km CAPE</span>
-            <span><kbd>1</kbd> 0-1km SRH</span>
-            <span><kbd>3</kbd> 0-3km SRH</span>
-            <span><kbd>6</kbd> 6hr helicity</span>
-            <span><kbd>7</kbd> 700mb UVV</span>
-            <span><kbd>B</kbd> SBCAPE</span>
-            <span><kbd>D</kbd> Dewpoint</span>
-            <span><kbd>E</kbd> Theta-E</span>
-            <span><kbd>F</kbd> Floater 1</span>
-            <span><kbd>G</kbd> Gusts</span>
-            <span><kbd>H</kbd> Helicity swaths</span>
-            <span><kbd>L</kbd> Lightning</span>
-            <span><kbd>M</kbd> MLCAPE</span>
-            <span><kbd>N</kbd> Northern Illinois</span>
-            <span><kbd>P</kbd> Total precip</span>
-            <span><kbd>R</kbd> Reflectivity</span>
-            <span><kbd>S</kbd> Supercell composite</span>
-            <span><kbd>T</kbd> Temperature</span>
-            <span><kbd>V</kbd> VIL</span>
-            <span><kbd>Shift</kbd>+<kbd>F</kbd> Floater 2</span>
-            <span><kbd>Shift</kbd>+<kbd>P</kbd> Sig tor</span>
-            <span><kbd>Shift</kbd>+<kbd>2</kbd> 250mb wind</span>
-            <span><kbd>Shift</kbd>+<kbd>5</kbd> 500mb wind</span>
-            <span><kbd>Shift</kbd>+<kbd>7</kbd> 700mb wind</span>
-            <span><kbd>Shift</kbd>+<kbd>8</kbd> 850mb wind</span>
-            <span><kbd>Shift</kbd>+<kbd>9</kbd> 925mb wind</span>
-            <span><kbd>Shift</kbd>+<kbd>Space</kbd> Forward / rock</span>
-            <span><kbd>Shift</kbd>+<kbd>V</kbd> 500mb vorticity</span>
-            <span><kbd>Ctrl</kbd>+<kbd>F</kbd> Floater 3</span>
-            <span><kbd>Ctrl</kbd>+<kbd>V</kbd> Surface vorticity</span>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
-
   <script src="app.js"></script>
 </body>
 </html>

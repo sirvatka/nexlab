@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#05070a">
+  <title>NexLab Six Panel Models</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="app" class="app">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="eyebrow">Weather Data / Forecast Models</span>
+        <strong>Six Panel</strong>
+      </div>
+      <div id="status" class="status">Loading six panels...</div>
+      <div class="top-actions">
+        <button id="refreshAll" class="icon-button" type="button" title="Refresh all panels" aria-label="Refresh all panels">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+        </button>
+        <button id="expandApp" class="icon-button" type="button" title="Expand four panel" aria-label="Expand four panel">
+          <svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5M9 9 3 3M15 9l6-6M15 15l6 6M9 15l-6 6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="panelGrid" class="panel-grid" aria-label="Six model panels"></section>
+
+    <footer class="timebar">
+      <div class="transport" role="group" aria-label="Frame controls">
+        <button id="prevFrame" class="icon-button" type="button" title="Previous frame" aria-label="Previous frame">
+          <svg viewBox="0 0 24 24"><path d="m15 6-8 6 8 6V6Z"/></svg>
+        </button>
+        <button id="playPause" class="play-button" type="button" title="Play" aria-label="Play animation">
+          <svg viewBox="0 0 24 24"><path id="playIcon" d="M8 5v14l11-7L8 5Z"/></svg>
+        </button>
+        <button id="nextFrame" class="icon-button" type="button" title="Next frame" aria-label="Next frame">
+          <svg viewBox="0 0 24 24"><path d="m9 6 8 6-8 6V6Z"/></svg>
+        </button>
+      </div>
+      <input id="frameSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Valid time">
+      <output id="validTime">Valid time unavailable</output>
+    </footer>
+
+    <div id="productPicker" class="picker-backdrop" hidden>
+      <section class="product-picker" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+        <header>
+          <div>
+            <span class="eyebrow">Selected panel</span>
+            <h2 id="pickerTitle">Choose Product</h2>
+          </div>
+          <button id="closePicker" class="icon-button" type="button" title="Close" aria-label="Close product picker">
+            <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div id="productGroups" class="product-groups"></div>
+      </section>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,4 +1,8 @@
 const COD_ENDPOINT = "https://weather.cod.edu/datapoints/forecast/get-files.php";
+const DEFAULT_REGION_KEY = "nexlab-default-region";
+const FACTORY_DEFAULT_REGION = "NIL";
+const CAM_MODELS = new Set(["HRRR", "NAMNST"]);
+const FLOATER_REGIONS = ["FLT1", "FLT2", "FLT3"];
 
 const models = [
   { id: "HRRR", label: "HRRR", title: "High-Resolution Rapid Refresh", color: "#f2c94c", cycleHours: Array.from({ length: 24 }, (_, i) => i), fullHour: 48 },
@@ -279,7 +283,7 @@ const modelProductCatalog = {
 
 const state = {
   model: "HRRR",
-  region: "MW",
+  region: savedDefaultRegion(),
   product: "radar",
   productLevel: "prec",
   run: "0",
@@ -317,6 +321,7 @@ const els = {
   runPicker: document.getElementById("runPicker"),
   frameInfoButton: document.getElementById("frameInfoButton"),
   speedSlider: document.getElementById("speedSlider"),
+  speedValue: document.getElementById("speedValue"),
   firstHold: document.getElementById("firstHold"),
   lastHold: document.getElementById("lastHold"),
   loopMode: document.getElementById("loopMode"),
@@ -325,6 +330,7 @@ const els = {
   frameTicks: document.getElementById("frameTicks"),
   sliderMarker: document.getElementById("sliderMarker"),
   expandViewer: document.getElementById("expandViewer"),
+  defaultRegionButton: document.getElementById("defaultRegionButton"),
   hotkeyHelp: document.getElementById("hotkeyHelp"),
   closeHotkeyHelp: document.getElementById("closeHotkeyHelp")
 };
@@ -333,6 +339,14 @@ const ctx = els.canvas.getContext("2d");
 
 function selectedModel() {
   return models.find((item) => item.id === state.model) || models[0];
+}
+
+function savedDefaultRegion() {
+  try {
+    return localStorage.getItem(DEFAULT_REGION_KEY) || FACTORY_DEFAULT_REGION;
+  } catch {
+    return FACTORY_DEFAULT_REGION;
+  }
 }
 
 function selectedRegion() {
@@ -407,6 +421,7 @@ function renderRegionButtons() {
     });
     container.appendChild(button);
   });
+  updateDefaultRegionButton();
 }
 
 function regionsForSelection() {
@@ -414,6 +429,16 @@ function regionsForSelection() {
   return ids
     .map((id) => ({ id, label: regionNames[id] || id }))
     .sort((a, b) => {
+      if (CAM_MODELS.has(state.model)) {
+        const aFloater = FLOATER_REGIONS.indexOf(a.id);
+        const bFloater = FLOATER_REGIONS.indexOf(b.id);
+        if (aFloater !== -1 || bFloater !== -1) {
+          if (aFloater === -1) return 1;
+          if (bFloater === -1) return -1;
+          return aFloater - bFloater;
+        }
+        return a.label.localeCompare(b.label);
+      }
       if (a.id === "NA") return -1;
       if (b.id === "NA") return 1;
       if (a.id === "US") return b.id === "NA" ? 1 : -1;
@@ -425,9 +450,24 @@ function regionsForSelection() {
 function ensureSelectedRegion() {
   const regions = regionsForSelection();
   if (!regions.some((region) => region.id === state.region)) {
-    const preferred = regions.find((region) => region.id === "US") || regions.find((region) => region.id === "MW") || regions[0];
+    const defaultRegion = savedDefaultRegion();
+    const preferred = regions.find((region) => region.id === defaultRegion)
+      || regions.find((region) => region.id === FACTORY_DEFAULT_REGION)
+      || regions.find((region) => region.id === "US")
+      || regions.find((region) => region.id === "MW")
+      || regions[0];
     state.region = preferred.id;
   }
+}
+
+function updateDefaultRegionButton() {
+  const isDefault = state.region === savedDefaultRegion();
+  els.defaultRegionButton.classList.toggle("active", isDefault);
+  els.defaultRegionButton.setAttribute("aria-pressed", String(isDefault));
+  els.defaultRegionButton.title = isDefault
+    ? `${selectedRegion().label} is your default region`
+    : `Set ${selectedRegion().label} as default`;
+  els.defaultRegionButton.setAttribute("aria-label", els.defaultRegionButton.title);
 }
 
 function renderProductGroups() {
@@ -693,6 +733,7 @@ function activeButtons() {
   document.querySelectorAll(".run").forEach((button) => {
     button.classList.toggle("active", button.dataset.run === state.run || (state.run === "0" && button.dataset.run === "0"));
   });
+  updateDefaultRegionButton();
 }
 
 async function loadFrames() {
@@ -943,13 +984,23 @@ function scheduleNextFrame() {
   const max = Number(els.slider.max);
   const atStart = state.frameIndex === 0;
   const atEnd = state.frameIndex === max;
-  let delay = Number(els.speedSlider.value);
-  if (atStart) delay += Number(els.firstHold.value || 0);
-  if (atEnd) delay += Number(els.lastHold.value || 0);
+  let delay = frameDelayMs();
+  if (atStart) delay += Number(els.firstHold.value || 0) * 1000;
+  if (atEnd) delay += Number(els.lastHold.value || 0) * 1000;
   state.timer = setTimeout(() => {
     advanceFrame();
     scheduleNextFrame();
   }, delay);
+}
+
+function frameDelayMs() {
+  const min = Number(els.speedSlider.min);
+  const max = Number(els.speedSlider.max);
+  return max + min - Number(els.speedSlider.value);
+}
+
+function updateTimingReadout() {
+  els.speedValue.value = `${(frameDelayMs() / 1000).toFixed(2)} sec`;
 }
 
 function setPlaying(value) {
@@ -1068,6 +1119,22 @@ document.getElementById("nextFrame").addEventListener("click", () => {
 document.getElementById("playPause").addEventListener("click", () => setPlaying(!state.playing));
 
 els.expandViewer.addEventListener("click", toggleViewerExpansion);
+els.defaultRegionButton.addEventListener("click", saveCurrentRegionAsDefault);
+
+function saveCurrentRegionAsDefault() {
+  try {
+    localStorage.setItem(DEFAULT_REGION_KEY, state.region);
+    updateDefaultRegionButton();
+    els.loadingStatus.hidden = false;
+    els.loadingStatus.textContent = `${selectedRegion().label} saved as your default region.`;
+    setTimeout(() => {
+      els.loadingStatus.hidden = true;
+    }, 1600);
+  } catch {
+    els.loadingStatus.hidden = false;
+    els.loadingStatus.textContent = "This browser could not save the default region.";
+  }
+}
 
 function toggleViewerExpansion() {
   if (document.fullscreenElement) {
@@ -1297,6 +1364,7 @@ function isTypingTarget(target) {
 
 [els.speedSlider, els.firstHold, els.lastHold, els.loopMode].forEach((control) => {
   control.addEventListener("input", () => {
+    updateTimingReadout();
     if (state.playing) scheduleNextFrame();
   });
 });
@@ -1387,6 +1455,8 @@ function drawCanvas() {
   ctx.fillText(`${region.label} | ${product.level}/${product.id} | local fallback`, 42, 90);
 }
 
+ensureSelectedRegion();
+updateTimingReadout();
 buttonGrid("modelButtons", models, "model");
 renderRegionButtons();
 renderProductGroups();

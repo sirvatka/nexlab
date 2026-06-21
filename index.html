@@ -39,7 +39,12 @@
         <div id="modelButtons" class="option-grid model-grid"></div>
       </section>
       <section class="control-group">
-        <div class="group-title">REGION</div>
+        <div class="group-title-row">
+          <div class="group-title">REGION</div>
+          <button id="defaultRegionButton" class="default-region-button" type="button" title="Set selected region as default" aria-label="Set selected region as default" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>
+          </button>
+        </div>
         <div id="regionButtons" class="option-grid"></div>
       </section>
       <section class="control-group">
@@ -101,23 +106,24 @@
       </div>
 
       <div class="loop-panel" aria-label="Loop settings">
-        <label>
-          <span>Speed</span>
-          <input id="speedSlider" type="range" min="80" max="1200" step="20" value="650">
+        <label class="speed-setting">
+          <span class="control-label-row"><span>Frame speed</span><output id="speedValue">0.65 sec</output></span>
+          <input id="speedSlider" type="range" min="100" max="1500" step="50" value="950" aria-label="Frame speed; move right for faster">
+          <span class="range-scale"><span>1.50 sec</span><span>0.10 sec</span></span>
         </label>
         <label>
           <span>First frame hold</span>
-          <input id="firstHold" type="number" min="0" max="5000" step="100" value="900">
+          <span class="unit-input"><input id="firstHold" type="number" min="0" max="5" step="0.1" value="0.9"><span>sec</span></span>
         </label>
         <label>
           <span>Last frame hold</span>
-          <input id="lastHold" type="number" min="0" max="5000" step="100" value="1400">
+          <span class="unit-input"><input id="lastHold" type="number" min="0" max="5" step="0.1" value="1.4"><span>sec</span></span>
         </label>
         <label>
           <span>Loop</span>
           <select id="loopMode">
             <option value="forward">Forward</option>
-            <option value="bounce">Bounce</option>
+            <option value="bounce">Rock</option>
             <option value="once">Once</option>
           </select>
         </label>

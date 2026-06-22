@@ -1782,19 +1782,32 @@ function renderConvectivePanel() {
 
   const outlooks = document.createElement("section");
   outlooks.innerHTML = "<h3>Convective Outlooks</h3>";
-  const imageGrid = document.createElement("div");
-  imageGrid.className = "tile-grid convective-outlook-grid";
+  const dayGroups = document.createElement("div");
+  dayGroups.className = "convective-day-groups";
 
-  convectiveImages.forEach(([title, imageUrl, textUrl]) => {
-    const tile = document.createElement("button");
-    tile.type = "button";
-    tile.className = "convective-tile";
-    tile.innerHTML = `<strong>${title}</strong><img src="${cacheBust(imageUrl)}" alt="${title}">`;
-    tile.addEventListener("click", () => renderConvectiveDiscussion(title, imageUrl, textUrl));
-    imageGrid.append(tile);
+  [1, 2, 3].forEach((day) => {
+    const dayGroup = document.createElement("section");
+    dayGroup.className = "convective-day-group";
+    dayGroup.innerHTML = `<h4>Day ${day}</h4>`;
+    const imageGrid = document.createElement("div");
+    imageGrid.className = "convective-day-grid";
+
+    convectiveImages
+      .filter(([title]) => title.startsWith(`Day ${day} `))
+      .forEach(([title, imageUrl, textUrl]) => {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "convective-tile";
+        tile.innerHTML = `<strong>${title}</strong><img src="${cacheBust(imageUrl)}" alt="${title}">`;
+        tile.addEventListener("click", () => renderConvectiveDiscussion(title, imageUrl, textUrl));
+        imageGrid.append(tile);
+      });
+
+    dayGroup.append(imageGrid);
+    dayGroups.append(dayGroup);
   });
 
-  outlooks.append(imageGrid);
+  outlooks.append(dayGroups);
 
   const extended = document.createElement("section");
   extended.innerHTML = "<h3>Day 4-8 Severe Probability</h3>";

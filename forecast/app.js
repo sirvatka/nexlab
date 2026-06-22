@@ -281,21 +281,23 @@ const modelProductCatalog = {
   }
 };
 
+const initialSelection = selectionFromUrl();
+
 const state = {
-  model: "HRRR",
-  region: savedDefaultRegion(),
-  product: "radar",
-  productLevel: "prec",
+  model: initialSelection.model,
+  region: initialSelection.region,
+  product: initialSelection.product,
+  productLevel: initialSelection.productLevel,
   run: "0",
   actualRun: "",
-  targetValidTime: null,
+  targetValidTime: initialSelection.validTime,
   frameIndex: 0,
   frames: [],
   validtimes: [],
   imageInfo: { width: 800, height: 600 },
   productAvailability: new Map(),
   runCompletion: new Map(),
-  openProductLevels: new Set(["prec"]),
+  openProductLevels: new Set([initialSelection.productLevel]),
   playing: false,
   direction: 1,
   timer: null,
@@ -306,6 +308,26 @@ const state = {
   runCompletionKey: 0
 };
 
+function selectionFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedModel = String(params.get("model") || "").toUpperCase();
+  const model = models.some((item) => item.id === requestedModel) ? requestedModel : "HRRR";
+  const requestedLevel = params.get("level") || "";
+  const requestedProduct = params.get("product") || "";
+  const catalog = modelProductCatalog[model] || modelProductCatalog.HRRR;
+  const hasRequestedProduct = Boolean(catalog[requestedLevel]?.includes(requestedProduct));
+  const fallbackLevel = model === "HRRR" ? "prec" : (levelOrder.find((level) => catalog[level]?.length) || "sfc");
+  const fallbackProduct = model === "HRRR" ? "radar" : catalog[fallbackLevel][0];
+  const valid = Number(params.get("valid"));
+  return {
+    model,
+    region: params.get("region") || savedDefaultRegion(),
+    productLevel: hasRequestedProduct ? requestedLevel : fallbackLevel,
+    product: hasRequestedProduct ? requestedProduct : fallbackProduct,
+    validTime: Number.isFinite(valid) && valid > 0 ? valid : null
+  };
+}
+
 const els = {
   viewer: document.querySelector(".viewer"),
   canvas: document.getElementById("weatherCanvas"),
@@ -313,13 +335,14 @@ const els = {
   stage: document.querySelector(".image-stage"),
   title: document.getElementById("title"),
   caption: document.getElementById("caption"),
-  captionMain: document.getElementById("captionMain"),
-  captionRun: document.getElementById("captionRun"),
+  infoProduct: document.getElementById("infoProduct"),
+  infoForecastHour: document.getElementById("infoForecastHour"),
+  infoValidTime: document.getElementById("infoValidTime"),
+  infoRunTime: document.getElementById("infoRunTime"),
   slider: document.getElementById("frameSlider"),
   playIcon: document.getElementById("playIcon"),
   loadingStatus: document.getElementById("loadingStatus"),
   runPicker: document.getElementById("runPicker"),
-  frameInfoButton: document.getElementById("frameInfoButton"),
   speedSlider: document.getElementById("speedSlider"),
   speedValue: document.getElementById("speedValue"),
   firstHold: document.getElementById("firstHold"),
@@ -331,6 +354,8 @@ const els = {
   sliderMarker: document.getElementById("sliderMarker"),
   expandViewer: document.getElementById("expandViewer"),
   defaultRegionButton: document.getElementById("defaultRegionButton"),
+  regionGroup: document.getElementById("regionGroup"),
+  regionToggle: document.getElementById("regionToggle"),
   hotkeyHelp: document.getElementById("hotkeyHelp"),
   closeHotkeyHelp: document.getElementById("closeHotkeyHelp")
 };
@@ -376,12 +401,15 @@ function buttonGrid(containerId, items, key) {
     button.innerHTML = `<span>${item.label}</span>`;
     button.addEventListener("click", () => {
       if (button.disabled) return;
+      const preservedRun = key === "region" ? displayedRun() : null;
       rememberCurrentValidTime();
       state[key] = item.id;
       state.direction = 1;
-      if (key === "model" || key === "region") {
+      if (key === "model") {
         state.run = "0";
         state.actualRun = "";
+      }
+      if (key === "model" || key === "region") {
         state.productAvailability.clear();
         ensureSelectedRegion();
         ensureSelectedProduct();
@@ -391,7 +419,7 @@ function buttonGrid(containerId, items, key) {
         probeProductAvailability();
       }
       renderLabels();
-      loadFrames();
+      loadFrames(preservedRun);
     });
     container.appendChild(button);
   });
@@ -407,17 +435,16 @@ function renderRegionButtons() {
     button.dataset.value = item.id;
     button.innerHTML = `<span>${item.label}</span>`;
     button.addEventListener("click", () => {
+      const preservedRun = displayedRun();
       rememberCurrentValidTime();
       state.region = item.id;
-      state.run = "0";
-      state.actualRun = "";
       state.direction = 1;
       state.productAvailability.clear();
       state.runCompletion.clear();
       renderLabels();
       renderRunPicker();
       probeProductAvailability();
-      loadFrames();
+      loadFrames(preservedRun);
     });
     container.appendChild(button);
   });
@@ -736,7 +763,7 @@ function activeButtons() {
   updateDefaultRegionButton();
 }
 
-async function loadFrames() {
+async function loadFrames(runOverride = null) {
   const requestKey = ++state.requestKey;
   const model = selectedModel();
   const product = selectedProduct();
@@ -746,7 +773,7 @@ async function loadFrames() {
   els.stage.classList.remove("using-fallback");
 
   try {
-    const response = await fetch(endpointUrl(), { headers: { Accept: "application/json" } });
+    const response = await fetch(endpointUrl(product, runOverride || state.run), { headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`COD returned ${response.status}`);
     const data = await response.json();
     if (requestKey !== state.requestKey) return;
@@ -863,9 +890,10 @@ function renderFrame() {
   const frameUrl = state.frames[state.frameIndex];
   const hour = getForecastHour(frameUrl, state.frameIndex);
   const validTime = formatValidTime(state.validtimes[state.frameIndex]);
-  els.frameInfoButton.textContent = validTime ? `Valid: ${validTime}` : "Valid: unavailable";
-  els.captionMain.textContent = `${model.label} | ${region.id} | ${product.level}/${product.id} | F${hour} | Valid: ${validTime || "unavailable"}`;
-  els.captionRun.textContent = `Run Time: ${model.label} ${formatRunLong(displayedRun()) || "unavailable"}`;
+  els.infoProduct.textContent = `${product.label} (${product.level}/${product.id})`;
+  els.infoForecastHour.textContent = `F${hour}`;
+  els.infoValidTime.textContent = validTime || "Unavailable";
+  els.infoRunTime.textContent = `${model.label} ${formatRunLong(displayedRun()) || "Unavailable"}`;
   renderSliderMarker();
   renderFrameTicks();
 
@@ -894,13 +922,19 @@ function renderFrameTicks() {
 
 function renderSliderMarker() {
   els.sliderMarker.style.left = sliderThumbLeft(state.frameIndex);
-  els.sliderMarker.querySelector("span").textContent = formatMarkerValidHour(state.validtimes[state.frameIndex]);
+  const label = formatMarkerValidHour(state.validtimes[state.frameIndex]);
+  els.sliderMarker.querySelector("span").textContent = label;
+  els.sliderMarker.setAttribute("aria-valuemin", "0");
+  els.sliderMarker.setAttribute("aria-valuemax", String(Math.max(0, state.frames.length - 1)));
+  els.sliderMarker.setAttribute("aria-valuenow", String(state.frameIndex));
+  els.sliderMarker.setAttribute("aria-valuetext", `Valid time ${label}`);
+  els.sliderMarker.title = `Valid time ${label}`;
 }
 
 function sliderThumbLeft(index) {
   const max = Math.max(1, Number(els.slider.max));
   const percent = state.frames.length ? index / max * 100 : 0;
-  const thumbOffset = 8 - percent * 0.16;
+  const thumbOffset = 18 - percent * 0.36;
   return `calc(${percent}% + ${thumbOffset}px)`;
 }
 
@@ -1120,6 +1154,10 @@ document.getElementById("playPause").addEventListener("click", () => setPlaying(
 
 els.expandViewer.addEventListener("click", toggleViewerExpansion);
 els.defaultRegionButton.addEventListener("click", saveCurrentRegionAsDefault);
+els.regionToggle.addEventListener("click", () => {
+  const collapsed = els.regionGroup.classList.toggle("collapsed");
+  els.regionToggle.setAttribute("aria-expanded", String(!collapsed));
+});
 
 function saveCurrentRegionAsDefault() {
   try {
@@ -1163,6 +1201,37 @@ function updateExpandButton() {
 els.slider.addEventListener("input", () => {
   state.frameIndex = Number(els.slider.value);
   renderFrame();
+});
+
+let draggingSliderMarker = false;
+
+function setFrameFromPointer(clientX) {
+  if (!state.frames.length) return;
+  const rect = els.slider.getBoundingClientRect();
+  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
+  state.frameIndex = Math.round(ratio * Math.max(0, state.frames.length - 1));
+  renderFrame();
+}
+
+els.sliderMarker.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  draggingSliderMarker = true;
+  els.sliderMarker.setPointerCapture(event.pointerId);
+  setFrameFromPointer(event.clientX);
+});
+
+els.sliderMarker.addEventListener("pointermove", (event) => {
+  if (!draggingSliderMarker) return;
+  setFrameFromPointer(event.clientX);
+});
+
+els.sliderMarker.addEventListener("pointerup", (event) => {
+  draggingSliderMarker = false;
+  if (els.sliderMarker.hasPointerCapture(event.pointerId)) els.sliderMarker.releasePointerCapture(event.pointerId);
+});
+
+els.sliderMarker.addEventListener("pointercancel", () => {
+  draggingSliderMarker = false;
 });
 
 document.addEventListener("keydown", (event) => {
@@ -1282,10 +1351,9 @@ function selectRegionShortcut(regionId) {
     return;
   }
   if (state.region === regionId) return;
+  const preservedRun = displayedRun();
   rememberCurrentValidTime();
   state.region = regionId;
-  state.run = "0";
-  state.actualRun = "";
   state.direction = 1;
   state.productAvailability.clear();
   state.runCompletion.clear();
@@ -1295,7 +1363,7 @@ function selectRegionShortcut(regionId) {
   renderProductGroups();
   renderRunPicker();
   probeProductAvailability();
-  loadFrames();
+  loadFrames(preservedRun);
 }
 
 function selectProductShortcut(productIds) {
@@ -1341,10 +1409,9 @@ function goToContinentalUS() {
     return;
   }
   if (state.region === "US") return;
+  const preservedRun = displayedRun();
   rememberCurrentValidTime();
   state.region = "US";
-  state.run = "0";
-  state.actualRun = "";
   state.direction = 1;
   state.productAvailability.clear();
   state.runCompletion.clear();
@@ -1354,7 +1421,7 @@ function goToContinentalUS() {
   renderProductGroups();
   renderRunPicker();
   probeProductAvailability();
-  loadFrames();
+  loadFrames(preservedRun);
 }
 
 function isTypingTarget(target) {

@@ -38,9 +38,11 @@
         <div class="group-title">MODEL</div>
         <div id="modelButtons" class="option-grid model-grid"></div>
       </section>
-      <section class="control-group">
+      <section id="regionGroup" class="control-group collapsible-group">
         <div class="group-title-row">
-          <div class="group-title">REGION</div>
+          <button id="regionToggle" class="group-title-button" type="button" aria-expanded="true" aria-controls="regionButtons">
+            <span>REGIONS</span><span class="group-chevron" aria-hidden="true"></span>
+          </button>
           <button id="defaultRegionButton" class="default-region-button" type="button" title="Set selected region as default" aria-label="Set selected region as default" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>
           </button>
@@ -61,7 +63,6 @@
         </div>
         <div class="run-head">
           <div id="runPicker" class="run-picker" role="group" aria-label="Model run"></div>
-          <button id="frameInfoButton" class="frame-info-button" type="button">Frame info unavailable</button>
         </div>
       </div>
 
@@ -71,10 +72,6 @@
           <canvas id="weatherCanvas" width="1320" height="780" aria-label="Synthetic weather model fallback"></canvas>
           <div id="loadingStatus" class="loading-status">Loading COD model frames...</div>
         </div>
-        <figcaption id="caption">
-          <span id="captionMain" class="caption-main">GFS | CONUS | Composite Reflectivity | Forecast hour 000</span>
-          <span id="captionRun" class="caption-run">Run Time: unavailable</span>
-        </figcaption>
       </figure>
 
       <div class="timeline-panel">
@@ -100,11 +97,12 @@
         </div>
         <div class="slider-wrap">
           <input id="frameSlider" type="range" min="0" max="84" step="3" value="0" aria-label="Forecast hour">
-          <div id="sliderMarker" class="slider-marker" aria-hidden="true"><span>VT --</span></div>
+          <button id="sliderMarker" class="slider-marker" type="button" role="slider" aria-label="Valid time slider" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><span>--Z</span></button>
         </div>
         <div id="frameTicks" class="frame-ticks" aria-hidden="true"></div>
       </div>
 
+      <aside class="viewer-side-rail">
       <div class="loop-panel" aria-label="Loop settings">
         <label class="speed-setting">
           <span class="control-label-row"><span>Frame speed</span><output id="speedValue">0.65 sec</output></span>
@@ -136,6 +134,27 @@
           <span>Auto refresh</span>
         </label>
       </div>
+      <div id="caption" class="viewer-info-box" aria-live="polite">
+        <dl class="viewer-info-list">
+          <div class="viewer-info-item">
+            <dt>Product</dt>
+            <dd id="infoProduct">Composite Reflectivity</dd>
+          </div>
+          <div class="viewer-info-item">
+            <dt>Forecast Hour</dt>
+            <dd id="infoForecastHour">F000</dd>
+          </div>
+          <div class="viewer-info-item viewer-info-item-wide">
+            <dt>Valid Time</dt>
+            <dd id="infoValidTime">Unavailable</dd>
+          </div>
+          <div class="viewer-info-item viewer-info-item-wide">
+            <dt>Run Time</dt>
+            <dd id="infoRunTime">Unavailable</dd>
+          </div>
+        </dl>
+      </div>
+      </aside>
 
       <div id="hotkeyHelp" class="hotkey-help" hidden role="dialog" aria-modal="true" aria-labelledby="hotkeyHelpTitle">
         <div class="hotkey-help-panel">

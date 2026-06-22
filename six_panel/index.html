@@ -16,6 +16,15 @@
       </div>
       <div id="status" class="status">Loading six panels...</div>
       <div class="top-actions">
+        <select id="configurationSelect" class="configuration-select" aria-label="Saved configurations">
+          <option value="">Saved configurations</option>
+        </select>
+        <button id="saveConfiguration" class="icon-button" type="button" title="Save current configuration" aria-label="Save current configuration">
+          <svg viewBox="0 0 24 24"><path d="M5 3h12l2 2v16H5V3Zm3 0v6h8V3M8 21v-7h8v7"/></svg>
+        </button>
+        <button id="deleteConfiguration" class="icon-button" type="button" title="Delete selected configuration" aria-label="Delete selected configuration" disabled>
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M9 3h6l1 4H8l1-4Zm-2 4 1 14h8l1-14M10 11v6M14 11v6"/></svg>
+        </button>
         <button id="refreshAll" class="icon-button" type="button" title="Refresh all panels" aria-label="Refresh all panels">
           <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
         </button>
@@ -38,6 +47,17 @@
         <button id="nextFrame" class="icon-button" type="button" title="Next frame" aria-label="Next frame">
           <svg viewBox="0 0 24 24"><path d="m9 6 8 6-8 6V6Z"/></svg>
         </button>
+      </div>
+      <div class="global-controls" role="group" aria-label="Global panel controls">
+        <select id="globalRun" aria-label="Run time" title="Change run time for all panels">
+          <option value="0">Latest run</option>
+        </select>
+        <select id="globalModel" aria-label="Change all models" title="Change all six models">
+          <option value="">All models...</option>
+        </select>
+        <select id="globalRegion" aria-label="Change all sectors" title="Change all supported sectors">
+          <option value="">All sectors...</option>
+        </select>
       </div>
       <input id="frameSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Valid time">
       <output id="validTime">Valid time unavailable</output>

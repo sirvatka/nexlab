@@ -38,6 +38,16 @@ input { font: inherit; }
   gap: 4px;
 }
 
+.app.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+}
+
 .topbar,
 .timebar {
   display: flex;
@@ -78,10 +88,46 @@ input { font: inherit; }
 }
 
 .top-actions,
-.transport {
+.transport,
+.global-controls {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.global-controls select {
+  width: 112px;
+  height: 31px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 0 5px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+#globalRun { width: 104px; }
+
+.top-actions { flex: 0 0 auto; }
+
+.configuration-select {
+  width: 180px;
+  height: 31px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.icon-button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
 }
 
 .icon-button,
@@ -277,7 +323,7 @@ input { font: inherit; }
 .picker-backdrop[hidden] { display: none; }
 
 .product-picker {
-  width: min(720px, 100%);
+  width: min(1180px, calc(100vw - 24px));
   max-height: min(720px, calc(100dvh - 32px));
   overflow: auto;
   border: 1px solid var(--line-strong);
@@ -304,7 +350,7 @@ input { font: inherit; }
 
 .product-groups {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding: 10px;
 }
@@ -325,7 +371,7 @@ input { font: inherit; }
 
 .product-options {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 3px;
   padding: 4px;
 }
@@ -366,7 +412,18 @@ input { font: inherit; }
   .model-panel { height: 44dvh; }
   .panel-head { grid-template-columns: 24px 68px 92px minmax(0, 1fr); }
   .status { display: none; }
+  .brand-block { min-width: 108px; }
+  .brand-block strong { font-size: 14px; }
+  .configuration-select { width: 116px; }
   .timebar { position: sticky; bottom: 0; z-index: 10; }
+  .timebar { overflow-x: auto; }
+  .global-controls,
+  .transport { flex: 0 0 auto; }
+  .timebar input[type="range"] { min-width: 170px; }
   .timebar output { min-width: 88px; max-width: 88px; overflow: hidden; }
   .product-groups { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 801px) and (max-width: 1050px) {
+  .product-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

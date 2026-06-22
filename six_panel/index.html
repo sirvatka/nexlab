@@ -49,15 +49,16 @@
         </button>
       </div>
       <div class="global-controls" role="group" aria-label="Global panel controls">
-        <select id="globalRun" aria-label="Run time" title="Change run time for all panels">
+        <span class="global-controls-title">All panels</span>
+        <label class="global-control"><span>Run</span><select id="globalRun" aria-label="Run time for all panels" title="Change run time for all panels">
           <option value="0">Latest run</option>
-        </select>
-        <select id="globalModel" aria-label="Change all models" title="Change all six models">
-          <option value="">All models...</option>
-        </select>
-        <select id="globalRegion" aria-label="Change all sectors" title="Change all supported sectors">
-          <option value="">All sectors...</option>
-        </select>
+        </select></label>
+        <label class="global-control"><span>Model</span><select id="globalModel" aria-label="Model for all panels" title="Change all six models">
+          <option value="">Choose model...</option>
+        </select></label>
+        <label class="global-control"><span>Sector</span><select id="globalRegion" aria-label="Sector for all panels" title="Change all supported sectors">
+          <option value="">Choose sector...</option>
+        </select></label>
       </div>
       <input id="frameSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Valid time">
       <output id="validTime">Valid time unavailable</output>

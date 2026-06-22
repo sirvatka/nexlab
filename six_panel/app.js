@@ -107,16 +107,16 @@ const els = {
 };
 
 function panelState(model, region, productKey) {
-  return { model, region, productKey, requestedRun: "0", frames: [], validtimes: [], index: 0, run: "", request: 0, dom: null };
+  return { model, region, productKey, requestedRun: "0", frames: [], validtimes: [], index: 0, run: "", fellBackToLatest: false, request: 0, dom: null };
 }
 
 function selectedProduct(panel) {
   return (products[panel.model] || []).find((item) => `${item.level}/${item.id}` === panel.productKey) || products[panel.model][0];
 }
 
-function endpoint(panel) {
+function endpoint(panel, requestedRun = panel.requestedRun) {
   const product = selectedProduct(panel);
-  return `${COD_ENDPOINT}?parms=${encodeURIComponent([panel.model, panel.requestedRun, panel.region, product.level, product.id].join("-"))}`;
+  return `${COD_ENDPOINT}?parms=${encodeURIComponent([panel.model, requestedRun, panel.region, product.level, product.id].join("-"))}`;
 }
 
 function buildPanels() {
@@ -174,9 +174,9 @@ function selectPanel(index) {
 }
 
 function initializeGlobalControls() {
-  els.globalModel.innerHTML = '<option value="">All models...</option>' + modelOrder.map((id) => `<option value="${id}">${modelLabels[id]}</option>`).join("");
+  els.globalModel.innerHTML = '<option value="">Choose model...</option>' + modelOrder.map((id) => `<option value="${id}">${modelLabels[id]}</option>`).join("");
   const allRegions = [...new Set(Object.values(regionSets).flat())].sort((a, b) => (regionNames[a] || a).localeCompare(regionNames[b] || b));
-  els.globalRegion.innerHTML = '<option value="">All sectors...</option>' + allRegions.map((id) => `<option value="${id}">${regionNames[id] || id}</option>`).join("");
+  els.globalRegion.innerHTML = '<option value="">Choose sector...</option>' + allRegions.map((id) => `<option value="${id}">${regionNames[id] || id}</option>`).join("");
 }
 
 async function loadPanel(index) {
@@ -186,10 +186,48 @@ async function loadPanel(index) {
   panel.dom.message.textContent = "Loading COD frames...";
   panel.dom.image.removeAttribute("src");
   try {
-    const response = await fetch(endpoint(panel), { headers: { Accept: "application/json" }, cache: "no-store" });
-    if (!response.ok) throw new Error(`COD returned ${response.status}`);
-    const data = await response.json();
+    const requestedRun = panel.requestedRun;
+    const fetchRun = async (run) => {
+      const response = await fetch(endpoint(panel, run), { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!response.ok) throw new Error(`COD returned ${response.status}`);
+      return response.json();
+    };
+    const hasFrames = (data) => Array.isArray(data?.files) && data.files.length > 0;
+    let data = { files: [], validtimes: [] };
+    let firstError = null;
+    try {
+      data = await fetchRun(requestedRun);
+    } catch (error) {
+      firstError = error;
+    }
+    let fellBackToLatest = false;
+    if (requestedRun !== "0" && !hasFrames(data)) {
+      try {
+        data = await fetchRun("0");
+        if (hasFrames(data)) fellBackToLatest = true;
+      } catch {
+        data = { files: [], validtimes: [] };
+      }
+    }
+    if (!hasFrames(data)) {
+      const candidates = buildRunCandidates(formatRunId(new Date()), panel.model);
+      for (const candidate of candidates) {
+        if (candidate === requestedRun) continue;
+        try {
+          const candidateData = await fetchRun(candidate);
+          if (!hasFrames(candidateData)) continue;
+          data = candidateData;
+          fellBackToLatest = true;
+          break;
+        } catch {
+          // Continue backward until this product exists for the model.
+        }
+      }
+    }
     if (request !== panel.request) return;
+    if (!hasFrames(data) && firstError) throw firstError;
+    panel.fellBackToLatest = fellBackToLatest;
+    if (fellBackToLatest) panel.requestedRun = "0";
     panel.frames = Array.isArray(data.files) ? data.files : [];
     panel.validtimes = Array.isArray(data.validtimes) ? data.validtimes : [];
     panel.run = extractRun(panel.frames[0]);
@@ -219,7 +257,9 @@ function renderPanel(index) {
   const product = selectedProduct(panel);
   panel.dom.image.alt = `${modelLabels[panel.model]} ${regionNames[panel.region] || panel.region} ${product.label}`;
   panel.dom.frame.textContent = `F${forecastHour(frame)} · Valid ${formatValid(panel.validtimes[panel.index])}`;
-  panel.dom.run.textContent = panel.run ? `Run ${formatRun(panel.run)}` : "Latest run";
+  panel.dom.run.textContent = panel.run
+    ? `Run ${formatRun(panel.run)}${panel.fellBackToLatest ? " · latest available" : ""}`
+    : "Latest run";
 }
 
 function updateStatus() {

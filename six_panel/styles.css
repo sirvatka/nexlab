@@ -96,8 +96,8 @@ input { font: inherit; }
 }
 
 .global-controls select {
-  width: 112px;
-  height: 31px;
+  width: 122px;
+  height: 25px;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 5px;
@@ -108,7 +108,35 @@ input { font: inherit; }
   font-weight: 800;
 }
 
-#globalRun { width: 104px; }
+#globalRun { width: 110px; }
+
+.global-controls {
+  gap: 6px;
+  padding-left: 7px;
+  border-left: 1px solid var(--line);
+}
+
+.global-controls-title {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.global-control {
+  display: grid;
+  gap: 1px;
+}
+
+.global-control > span {
+  color: var(--muted);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
 
 .top-actions { flex: 0 0 auto; }
 

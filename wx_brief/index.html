@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Paul's Quick Briefing Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@200;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <a class="brand-logo" href="https://nexlabweather.com/" target="_blank" rel="noreferrer" aria-label="NexLab Weather">
+          <img class="brand-mark" src="https://nexlabweather.com/img/logo-cloud-filled.svg" alt="">
+          <img class="brand-wordmark" src="https://nexlabweather.com/img/logo-text.svg" alt="NexLab">
+        </a>
+        <div>
+          <p class="eyebrow">College of DuPage Weather</p>
+          <h1>Paul's Quick Briefing Page</h1>
+        </div>
+      </div>
+      <div class="clock">
+        <span>Current time</span>
+        <strong id="clock">--:--:-- Z</strong>
+      </div>
+    </header>
+
+    <main class="layout">
+      <nav class="sidebar" aria-label="Product list">
+        <section>
+          <h2>Local Weather</h2>
+          <button class="product active" data-product="chi-surface">Chicago (LOT) Surface Map</button>
+          <button class="product" data-product="satrad-images">Satrad Images</button>
+          <button class="product" data-product="lot-text">Chicago (LOT) Text Products</button>
+          <button class="product" data-product="forecast-dupage">DuPage Forecast</button>
+          <button class="product" data-product="nws-timeseries">NWS 3-min Obs</button>
+          <button class="product" data-product="iowa-state-meteogram">Iowa State Meteorogram</button>
+          <button class="product" data-product="sref-plumes-ord">SREF Plumes: ORD</button>
+          <button class="product" data-product="campus-weather">Campus Weather</button>
+        </section>
+
+        <section>
+          <h2>Severe Weather</h2>
+          <button class="product" data-product="active-hazards-severe">Active Weather Hazards</button>
+          <button class="product" data-product="convective-frame">COD Convective Products</button>
+          <button class="product" data-product="lsr-map">24-hr Storm Report Map</button>
+          <button class="product" data-product="spc-href">SPC HREF UH Probs.</button>
+          <button class="product" data-product="hrrr-severe">HRRR Severe Fields</button>
+          <button class="product" data-product="namnest-severe">NAMNST Severe Fields</button>
+          <button class="product" data-product="rap-severe">RAP Severe Fields</button>
+          <button class="product" data-product="nam-severe">NAM Severe Fields</button>
+          <button class="product" data-product="gfs-severe">GFS Severe Fields</button>
+          <button class="product" data-product="ecmwf-severe">ECMWF Severe Fields</button>
+        </section>
+
+        <section>
+          <h2>Aviation</h2>
+          <button class="product" data-product="obs-dpa">METARs and TAFs: DPA</button>
+          <button class="product" data-product="obs-ord">METARs and TAFs: ORD</button>
+          <button class="product" data-product="obs-rfd">METARs and TAFs: RFD</button>
+          <button class="product" data-product="obs-mdw">METARs and TAFs: MDW</button>
+          <button class="product" data-product="aviation-custom">METARs and TAFs: Custom</button>
+        </section>
+
+        <section>
+          <h2>Winter Weather</h2>
+          <button class="product" data-product="active-hazards-winter">Active Weather Hazards</button>
+          <button class="product" data-product="winter-frame">COD Winter Products</button>
+          <button class="product" data-product="hrrr-winter">HRRR Winter Fields</button>
+          <button class="product" data-product="namnest-winter">NAMNST Winter Fields</button>
+          <button class="product" data-product="rap-winter">RAP Winter Fields</button>
+          <button class="product" data-product="nam-winter">NAM Winter Fields</button>
+          <button class="product" data-product="gfs-winter">GFS Winter Fields</button>
+          <button class="product" data-product="ecmwf-winter">ECMWF Winter Fields</button>
+        </section>
+      </nav>
+
+      <section class="workspace">
+        <div class="workspace-header">
+          <div>
+            <p id="selected-section" class="eyebrow">Images</p>
+            <h2 id="selected-title">Chicago Surface Map</h2>
+          </div>
+          <div class="actions">
+            <button id="refresh" type="button">Refresh</button>
+            <a id="open-source" class="button" href="#" target="_blank" rel="noreferrer">Open source</a>
+            <button id="back-view" type="button">Back</button>
+          </div>
+        </div>
+
+        <article class="viewer">
+          <div id="viewer-status" class="viewer-status">Live COD image</div>
+          <div id="preview" class="preview"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="airport-lookup.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -181,7 +181,7 @@ const productHotkeys = {
   "*": [{ id: "spd", level: "850" }],
   "(": [{ id: "spd", level: "925" }],
   "6": ["uphlysw6"],
-  t: ["temp"],
+  t: [{ id: "temp", level: "sfc" }],
   d: ["30mbdewp", "dewp"],
   e: ["thetae"],
   v: ["vil"],
@@ -715,6 +715,7 @@ async function probeRunCompletion() {
 function probeProductAvailability() {
   const key = ++state.availabilityKey;
   const products = productsForSelection();
+  const selectionAtProbeStart = productKey(selectedProduct());
   products.forEach((product) => state.productAvailability.set(productKey(product), null));
   renderProductAvailability();
 
@@ -730,7 +731,8 @@ function probeProductAvailability() {
   })).then((results) => {
     if (key !== state.availabilityKey) return;
     results.forEach((result) => state.productAvailability.set(productKey(result), result.count));
-    if ((state.productAvailability.get(productKey(selectedProduct())) || 0) === 0) {
+    if (productKey(selectedProduct()) === selectionAtProbeStart
+      && (state.productAvailability.get(productKey(selectedProduct())) || 0) === 0) {
       const firstAvailable = results.find((result) => result.count > 0);
       if (firstAvailable) {
         rememberCurrentValidTime();
@@ -1193,10 +1195,32 @@ function toggleViewerExpansion() {
 document.addEventListener("fullscreenchange", updateExpandButton);
 
 function updateExpandButton() {
-  const expanded = Boolean(document.fullscreenElement) || els.viewer.classList.contains("expanded");
+  const expanded = Boolean(document.fullscreenElement)
+    || els.viewer.classList.contains("expanded")
+    || els.viewer.classList.contains("phone-landscape-expanded");
   els.expandViewer.title = expanded ? "Exit expanded view" : "Expand viewer";
   els.expandViewer.setAttribute("aria-label", expanded ? "Exit expanded view" : "Expand viewer");
 }
+
+const phoneLandscapeQuery = window.matchMedia("(orientation: landscape) and (max-width: 1000px) and (max-height: 600px)");
+
+function syncPhoneLandscapeViewer() {
+  const shouldExpand = window.innerWidth > window.innerHeight
+    && window.innerWidth <= 1000
+    && window.innerHeight <= 600;
+  els.viewer.classList.toggle("phone-landscape-expanded", shouldExpand);
+  document.body.classList.toggle("phone-landscape-viewer", shouldExpand);
+  updateExpandButton();
+}
+
+if (phoneLandscapeQuery.addEventListener) {
+  phoneLandscapeQuery.addEventListener("change", syncPhoneLandscapeViewer);
+} else {
+  phoneLandscapeQuery.addListener(syncPhoneLandscapeViewer);
+}
+window.addEventListener("resize", syncPhoneLandscapeViewer);
+window.addEventListener("orientationchange", syncPhoneLandscapeViewer);
+setInterval(syncPhoneLandscapeViewer, 500);
 
 els.slider.addEventListener("input", () => {
   state.frameIndex = Number(els.slider.value);
@@ -1276,7 +1300,9 @@ document.addEventListener("keydown", (event) => {
     selectRegionShortcut("FLT2");
     return;
   }
-  const productShortcut = productHotkeys[event.key] || productHotkeys[event.key.toLowerCase()];
+  const productShortcut = event.key === "p" && !CAM_MODELS.has(state.model)
+    ? ["prec", "meanprec", "precacc3", "precacc6"]
+    : productHotkeys[event.key] || productHotkeys[event.key.toLowerCase()];
   if (productShortcut) {
     event.preventDefault();
     selectProductShortcut(productShortcut);
@@ -1523,6 +1549,7 @@ function drawCanvas() {
 }
 
 ensureSelectedRegion();
+syncPhoneLandscapeViewer();
 updateTimingReadout();
 buttonGrid("modelButtons", models, "model");
 renderRegionButtons();

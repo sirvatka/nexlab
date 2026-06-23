@@ -544,6 +544,7 @@ canvas {
 }
 
 .viewer.expanded,
+.viewer.phone-landscape-expanded,
 .viewer:fullscreen {
   position: fixed;
   inset: 0;
@@ -555,18 +556,102 @@ canvas {
 }
 
 .viewer.expanded .viewer-head,
+.viewer.phone-landscape-expanded .viewer-head,
 .viewer:fullscreen .viewer-head {
   margin-bottom: 0;
 }
 
 .viewer.expanded .timeline-panel,
+.viewer.phone-landscape-expanded .timeline-panel,
 .viewer:fullscreen .timeline-panel {
   margin-top: 0;
 }
 
 .viewer.expanded .loop-panel,
+.viewer.phone-landscape-expanded .loop-panel,
 .viewer:fullscreen .loop-panel {
   margin-top: 0;
+}
+
+@media (orientation: landscape) and (max-width: 1000px) and (max-height: 600px) {
+  body.phone-landscape-viewer {
+    overflow: hidden;
+  }
+
+  .viewer.phone-landscape-expanded {
+    grid-template-columns: minmax(0, 1fr) 120px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .viewer.phone-landscape-expanded .viewer-head {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .viewer.phone-landscape-expanded .crumb {
+    display: none;
+  }
+
+  .viewer.phone-landscape-expanded h1 {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .viewer.phone-landscape-expanded .run-head {
+    min-width: 0;
+  }
+
+  .viewer.phone-landscape-expanded .run-picker {
+    max-width: 58vw;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .viewer.phone-landscape-expanded .run {
+    flex: 0 0 auto;
+    min-width: 52px;
+    min-height: 27px;
+    padding: 2px 4px;
+  }
+
+  .viewer.phone-landscape-expanded .map-wrap {
+    grid-column: 1;
+    grid-row: 2;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .viewer.phone-landscape-expanded .timeline-panel {
+    grid-column: 1;
+    grid-row: 3;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px;
+    padding: 3px;
+  }
+
+  .viewer.phone-landscape-expanded .frame-ticks {
+    grid-column: 2;
+  }
+
+  .viewer.phone-landscape-expanded .viewer-side-rail {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .viewer.phone-landscape-expanded .timeline-panel .icon-button,
+  .viewer.phone-landscape-expanded .timeline-panel .play-button {
+    width: 27px;
+    height: 27px;
+  }
 }
 
 .transport {

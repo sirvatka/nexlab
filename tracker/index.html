@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071019">
+  <title>NexLab Chase Tracker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.1.0/ol.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="tracker-app">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="eyebrow">COD Storm Chasing</span>
+        <strong>Chase Tracker</strong>
+      </div>
+      <div id="trackerStatus" class="tracker-status" aria-live="polite">
+        <span class="status-dot"></span>
+        <span>Connecting to chase vehicle...</span>
+      </div>
+      <div class="map-actions" aria-label="Map controls">
+        <button id="surfaceToggle" class="tool-button" type="button" aria-pressed="false" title="Toggle surface observations">
+          <i data-lucide="wind" aria-hidden="true"></i><span>Surface</span>
+        </button>
+        <button id="hazardsToggle" class="tool-button active" type="button" aria-pressed="true" title="Toggle watches and warnings">
+          <i data-lucide="triangle-alert" aria-hidden="true"></i><span>Watches / Warnings</span>
+        </button>
+        <button id="radarToggle" class="tool-button active" type="button" aria-pressed="true" title="Toggle radar">
+          <i data-lucide="radar" aria-hidden="true"></i><span>Radar</span>
+        </button>
+        <button id="centerVehicle" class="icon-button" type="button" title="Center on vehicle" aria-label="Center on vehicle">
+          <i data-lucide="locate-fixed" aria-hidden="true"></i>
+        </button>
+        <button id="feedToggle" class="icon-button" type="button" title="Toggle chase updates" aria-label="Toggle chase updates" aria-expanded="true">
+          <i data-lucide="panel-right-close" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="tracker-workspace">
+      <section class="map-shell" aria-label="Current chase vehicle map">
+        <div id="map" class="map"></div>
+        <div id="surfaceStatus" class="layer-status" hidden></div>
+        <div class="vehicle-card" aria-live="polite">
+          <span class="vehicle-label">Current vehicle</span>
+          <strong id="vehicleName">Waiting for GPS</strong>
+          <span id="vehiclePosition">Position unavailable</span>
+          <span id="vehicleReport">Last report unavailable</span>
+        </div>
+        <div class="map-attribution">Van position: COD NEXLAB</div>
+      </section>
+
+      <aside id="updatesPanel" class="updates-panel" aria-label="Chase updates">
+        <header class="updates-head">
+          <div>
+            <span class="eyebrow">Field Feed</span>
+            <h1>Chase Updates</h1>
+          </div>
+          <button id="refreshFeed" class="icon-button" type="button" title="Refresh updates" aria-label="Refresh updates">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="feedStatus" class="feed-status">Local preview feed</div>
+        <div id="feedList" class="feed-list" aria-live="polite"></div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/ol@v7.1.0/dist/ol.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="feed-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -174,6 +174,7 @@ const productHotkeys = {
   V: [{ id: "avort", level: "500" }],
   "7": [{ id: "vvel", level: "700" }],
   b: ["sbcape"],
+  c: ["mucape"],
   m: ["mlcape"],
   "@": [{ id: "spd", level: "250" }],
   "%": [{ id: "spd", level: "500" }],

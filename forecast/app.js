@@ -357,6 +357,7 @@ const els = {
   expandViewer: document.getElementById("expandViewer"),
   landscapeMenu: document.getElementById("landscapeMenu"),
   landscapeModelSelect: document.getElementById("landscapeModelSelect"),
+  landscapeRegionSelect: document.getElementById("landscapeRegionSelect"),
   landscapeProductSelect: document.getElementById("landscapeProductSelect"),
   defaultRegionButton: document.getElementById("defaultRegionButton"),
   regionGroup: document.getElementById("regionGroup"),
@@ -561,6 +562,9 @@ function renderProductGroups() {
 function renderLandscapeSelectors() {
   els.landscapeModelSelect.innerHTML = models
     .map((model) => `<option value="${model.id}"${model.id === state.model ? " selected" : ""}>${model.label}</option>`)
+    .join("");
+  els.landscapeRegionSelect.innerHTML = regionsForSelection()
+    .map((region) => `<option value="${region.id}"${region.id === state.region ? " selected" : ""}>${region.label}</option>`)
     .join("");
 
   els.landscapeProductSelect.innerHTML = "";
@@ -1211,6 +1215,9 @@ document.getElementById("playPause").addEventListener("click", () => setPlaying(
 els.expandViewer.addEventListener("click", toggleViewerExpansion);
 els.landscapeModelSelect.addEventListener("change", () => {
   document.querySelector(`#modelButtons .option[data-value="${els.landscapeModelSelect.value}"]`)?.click();
+});
+els.landscapeRegionSelect.addEventListener("change", () => {
+  document.querySelector(`#regionButtons .option[data-value="${els.landscapeRegionSelect.value}"]`)?.click();
 });
 els.landscapeProductSelect.addEventListener("change", () => {
   const [level, product] = els.landscapeProductSelect.value.split("/");

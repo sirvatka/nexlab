@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-title" content="NexLab Models">
   <meta name="theme-color" content="#05070a">
   <title>NexLab Forecast Models - Local Recreation</title>
-  <link rel="stylesheet" href="styles.css?v=20260624-2">
+  <link rel="stylesheet" href="styles.css?v=20260624-3">
 </head>
 <body>
   <header class="topbar">
@@ -64,6 +64,17 @@
         <div class="run-head">
           <div id="runPicker" class="run-picker" role="group" aria-label="Model run"></div>
         </div>
+      </div>
+
+      <div id="landscapeMenu" class="landscape-menu" hidden>
+        <label>
+          <span>Model</span>
+          <select id="landscapeModelSelect" aria-label="Forecast model"></select>
+        </label>
+        <label>
+          <span>Product</span>
+          <select id="landscapeProductSelect" aria-label="Forecast product"></select>
+        </label>
       </div>
 
       <figure class="map-wrap">
@@ -209,6 +220,6 @@
     </section>
   </main>
 
-  <script src="app.js?v=20260624-3"></script>
+  <script src="app.js?v=20260624-4"></script>
 </body>
 </html>

@@ -355,6 +355,9 @@ const els = {
   frameTicks: document.getElementById("frameTicks"),
   sliderMarker: document.getElementById("sliderMarker"),
   expandViewer: document.getElementById("expandViewer"),
+  landscapeMenu: document.getElementById("landscapeMenu"),
+  landscapeModelSelect: document.getElementById("landscapeModelSelect"),
+  landscapeProductSelect: document.getElementById("landscapeProductSelect"),
   defaultRegionButton: document.getElementById("defaultRegionButton"),
   regionGroup: document.getElementById("regionGroup"),
   regionToggle: document.getElementById("regionToggle"),
@@ -551,6 +554,28 @@ function renderProductGroups() {
     });
     section.appendChild(list);
     container.appendChild(section);
+  });
+  renderLandscapeSelectors();
+}
+
+function renderLandscapeSelectors() {
+  els.landscapeModelSelect.innerHTML = models
+    .map((model) => `<option value="${model.id}"${model.id === state.model ? " selected" : ""}>${model.label}</option>`)
+    .join("");
+
+  els.landscapeProductSelect.innerHTML = "";
+  groupProductsByLevel().forEach((group) => {
+    const optionGroup = document.createElement("optgroup");
+    optionGroup.label = levelLabels[group.level] || group.level;
+    group.products.forEach((product) => {
+      const option = document.createElement("option");
+      option.value = productKey(product);
+      option.textContent = product.label;
+      option.selected = product.id === state.product && product.level === state.productLevel;
+      option.disabled = state.productAvailability.get(productKey(product)) === 0;
+      optionGroup.appendChild(option);
+    });
+    els.landscapeProductSelect.appendChild(optionGroup);
   });
 }
 
@@ -1015,6 +1040,9 @@ function expectedRunHour(run, files = []) {
   if (model.id === "HRRR" && date) {
     return [0, 6, 12, 18].includes(date.getUTCHours()) ? 48 : 18;
   }
+  if (model.id === "ECMWF" && date) {
+    return [0, 12].includes(date.getUTCHours()) ? 240 : 144;
+  }
   return model.fullHour || inferTargetHour(files);
 }
 
@@ -1181,6 +1209,13 @@ document.getElementById("nextFrame").addEventListener("click", () => {
 document.getElementById("playPause").addEventListener("click", () => setPlaying(!state.playing));
 
 els.expandViewer.addEventListener("click", toggleViewerExpansion);
+els.landscapeModelSelect.addEventListener("change", () => {
+  document.querySelector(`#modelButtons .option[data-value="${els.landscapeModelSelect.value}"]`)?.click();
+});
+els.landscapeProductSelect.addEventListener("change", () => {
+  const [level, product] = els.landscapeProductSelect.value.split("/");
+  document.querySelector(`#productButtons .product-option[data-level="${level}"][data-product-id="${product}"]`)?.click();
+});
 els.defaultRegionButton.addEventListener("click", saveCurrentRegionAsDefault);
 els.regionToggle.addEventListener("click", () => {
   const collapsed = els.regionGroup.classList.toggle("collapsed");
@@ -1203,6 +1238,11 @@ function saveCurrentRegionAsDefault() {
 }
 
 function toggleViewerExpansion() {
+  if (isPhoneLandscapeViewer()) {
+    els.landscapeMenu.hidden = !els.landscapeMenu.hidden;
+    updateExpandButton();
+    return;
+  }
   if (document.fullscreenElement) {
     document.exitFullscreen();
     return;
@@ -1221,11 +1261,21 @@ function toggleViewerExpansion() {
 document.addEventListener("fullscreenchange", updateExpandButton);
 
 function updateExpandButton() {
+  if (isPhoneLandscapeViewer()) {
+    const menuOpen = !els.landscapeMenu.hidden;
+    els.expandViewer.title = menuOpen ? "Close model and product menu" : "Choose model and product";
+    els.expandViewer.setAttribute("aria-label", els.expandViewer.title);
+    els.expandViewer.setAttribute("aria-expanded", String(menuOpen));
+    els.expandViewer.setAttribute("aria-controls", "landscapeMenu");
+    return;
+  }
   const expanded = Boolean(document.fullscreenElement)
     || els.viewer.classList.contains("expanded")
     || els.viewer.classList.contains("phone-landscape-expanded");
   els.expandViewer.title = expanded ? "Exit expanded view" : "Expand viewer";
   els.expandViewer.setAttribute("aria-label", expanded ? "Exit expanded view" : "Expand viewer");
+  els.expandViewer.removeAttribute("aria-expanded");
+  els.expandViewer.removeAttribute("aria-controls");
 }
 
 const phoneLandscapeQuery = window.matchMedia("(orientation: landscape) and (max-width: 1000px) and (max-height: 600px)");
@@ -1237,6 +1287,7 @@ function syncPhoneLandscapeViewer() {
   const changed = isPhoneLandscapeViewer() !== shouldExpand;
   els.viewer.classList.toggle("phone-landscape-expanded", shouldExpand);
   document.body.classList.toggle("phone-landscape-viewer", shouldExpand);
+  if (!shouldExpand) els.landscapeMenu.hidden = true;
   updateExpandButton();
   if (changed) {
     renderFrameTicks();
@@ -1295,6 +1346,12 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !els.hotkeyHelp.hidden) {
     event.preventDefault();
     closeHotkeyHelp();
+    return;
+  }
+  if (event.key === "Escape" && !els.landscapeMenu.hidden) {
+    event.preventDefault();
+    els.landscapeMenu.hidden = true;
+    updateExpandButton();
     return;
   }
   if (event.key === "Escape" && els.viewer.classList.contains("expanded")) {

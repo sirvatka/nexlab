@@ -340,6 +340,7 @@ const els = {
   infoValidTime: document.getElementById("infoValidTime"),
   infoRunTime: document.getElementById("infoRunTime"),
   slider: document.getElementById("frameSlider"),
+  sliderWrap: document.querySelector(".slider-wrap"),
   playIcon: document.getElementById("playIcon"),
   loadingStatus: document.getElementById("loadingStatus"),
   runPicker: document.getElementById("runPicker"),
@@ -912,18 +913,31 @@ function renderFrame() {
 function renderFrameTicks() {
   els.frameTicks.innerHTML = "";
   if (!state.frames.length) return;
+  const vertical = isPhoneLandscapeViewer();
   const count = Math.min(8, state.frames.length);
   for (let i = 0; i < count; i++) {
     const index = Math.round(i * (state.frames.length - 1) / Math.max(1, count - 1));
     const span = document.createElement("span");
-    span.textContent = formatTickValidTime(state.validtimes[index]);
-    span.style.left = sliderThumbLeft(index);
+    span.textContent = vertical ? formatMarkerValidHour(state.validtimes[index]) : formatTickValidTime(state.validtimes[index]);
+    if (vertical) {
+      span.style.top = sliderThumbTop(index);
+      span.style.left = "";
+    } else {
+      span.style.left = sliderThumbLeft(index);
+      span.style.top = "";
+    }
     els.frameTicks.appendChild(span);
   }
 }
 
 function renderSliderMarker() {
-  els.sliderMarker.style.left = sliderThumbLeft(state.frameIndex);
+  if (isPhoneLandscapeViewer()) {
+    els.sliderMarker.style.left = "28px";
+    els.sliderMarker.style.top = sliderThumbTop(state.frameIndex);
+  } else {
+    els.sliderMarker.style.left = sliderThumbLeft(state.frameIndex);
+    els.sliderMarker.style.top = "50%";
+  }
   const label = formatMarkerValidHour(state.validtimes[state.frameIndex]);
   els.sliderMarker.querySelector("span").textContent = label;
   els.sliderMarker.setAttribute("aria-valuemin", "0");
@@ -938,6 +952,17 @@ function sliderThumbLeft(index) {
   const percent = state.frames.length ? index / max * 100 : 0;
   const thumbOffset = 18 - percent * 0.36;
   return `calc(${percent}% + ${thumbOffset}px)`;
+}
+
+function sliderThumbTop(index) {
+  const max = Math.max(1, Number(els.slider.max));
+  const percent = state.frames.length ? index / max * 100 : 0;
+  const thumbOffset = 11 - percent * 0.22;
+  return `calc(${percent}% + ${thumbOffset}px)`;
+}
+
+function isPhoneLandscapeViewer() {
+  return els.viewer.classList.contains("phone-landscape-expanded");
 }
 
 function getForecastHour(url, fallbackIndex) {
@@ -1208,9 +1233,14 @@ function syncPhoneLandscapeViewer() {
   const shouldExpand = window.innerWidth > window.innerHeight
     && window.innerWidth <= 1000
     && window.innerHeight <= 600;
+  const changed = isPhoneLandscapeViewer() !== shouldExpand;
   els.viewer.classList.toggle("phone-landscape-expanded", shouldExpand);
   document.body.classList.toggle("phone-landscape-viewer", shouldExpand);
   updateExpandButton();
+  if (changed) {
+    renderFrameTicks();
+    renderSliderMarker();
+  }
 }
 
 if (phoneLandscapeQuery.addEventListener) {
@@ -1229,32 +1259,34 @@ els.slider.addEventListener("input", () => {
 
 let draggingSliderMarker = false;
 
-function setFrameFromPointer(clientX) {
+function setFrameFromPointer(clientX, clientY) {
   if (!state.frames.length) return;
   const rect = els.slider.getBoundingClientRect();
-  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
+  const ratio = isPhoneLandscapeViewer()
+    ? Math.min(1, Math.max(0, (clientY - rect.top) / Math.max(1, rect.height)))
+    : Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
   state.frameIndex = Math.round(ratio * Math.max(0, state.frames.length - 1));
   renderFrame();
 }
 
-els.sliderMarker.addEventListener("pointerdown", (event) => {
+els.sliderWrap.addEventListener("pointerdown", (event) => {
   event.preventDefault();
   draggingSliderMarker = true;
-  els.sliderMarker.setPointerCapture(event.pointerId);
-  setFrameFromPointer(event.clientX);
+  els.sliderWrap.setPointerCapture(event.pointerId);
+  setFrameFromPointer(event.clientX, event.clientY);
 });
 
-els.sliderMarker.addEventListener("pointermove", (event) => {
+els.sliderWrap.addEventListener("pointermove", (event) => {
   if (!draggingSliderMarker) return;
-  setFrameFromPointer(event.clientX);
+  setFrameFromPointer(event.clientX, event.clientY);
 });
 
-els.sliderMarker.addEventListener("pointerup", (event) => {
+els.sliderWrap.addEventListener("pointerup", (event) => {
   draggingSliderMarker = false;
-  if (els.sliderMarker.hasPointerCapture(event.pointerId)) els.sliderMarker.releasePointerCapture(event.pointerId);
+  if (els.sliderWrap.hasPointerCapture(event.pointerId)) els.sliderWrap.releasePointerCapture(event.pointerId);
 });
 
-els.sliderMarker.addEventListener("pointercancel", () => {
+els.sliderWrap.addEventListener("pointercancel", () => {
   draggingSliderMarker = false;
 });
 

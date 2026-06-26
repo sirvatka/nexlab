@@ -1937,3 +1937,461 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .topbar {
+    gap: 0.45rem;
+    padding: 0.45rem 0.65rem;
+  }
+
+  .brand {
+    gap: 0.55rem;
+  }
+
+  .brand-mark {
+    width: 2.15rem;
+  }
+
+  .brand-wordmark,
+  .clock,
+  .brand .eyebrow {
+    display: none;
+  }
+
+  h1 {
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+
+  .layout {
+    grid-template-rows: auto minmax(0, 1fr);
+    height: calc(100dvh - 3.05rem);
+    overflow: hidden;
+  }
+
+  .sidebar {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(12.25rem, 42vw);
+    gap: 0.55rem;
+    max-height: none;
+    height: 8.15rem;
+    min-height: 0;
+    padding: 0.55rem 0.65rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+
+  .sidebar section {
+    align-content: start;
+    gap: 0.25rem;
+    margin-bottom: 0;
+    scroll-snap-align: start;
+  }
+
+  .sidebar h2 {
+    position: sticky;
+    left: 0;
+    margin-bottom: 0.15rem;
+    color: var(--accent);
+    font-size: 0.66rem;
+  }
+
+  .product {
+    min-height: 2.05rem;
+    border-color: rgba(14, 197, 255, 0.12);
+    border-radius: 0.38rem;
+    padding: 0.36rem 0.48rem;
+    background: rgba(255, 255, 255, 0.045);
+    font-size: 0.72rem;
+    line-height: 1.08;
+  }
+
+  .product.active {
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+
+  .workspace {
+    padding: 0.5rem 0.55rem 0.65rem;
+    overflow: hidden;
+  }
+
+  .workspace-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .workspace-header .eyebrow {
+    margin-bottom: 0.1rem;
+    font-size: 0.6rem;
+  }
+
+  .workspace-header h2 {
+    font-size: 1.05rem;
+    line-height: 1.08;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(2.4rem, auto));
+    gap: 0.25rem;
+  }
+
+  .actions button,
+  .actions .button {
+    min-height: 2rem;
+    border-radius: 0.35rem;
+    padding: 0 0.42rem;
+    font-size: 0.68rem;
+    line-height: 1;
+  }
+
+  .viewer {
+    height: calc(100% - 3.2rem);
+    min-height: 0;
+    border-radius: 0.38rem;
+  }
+
+  .viewer-status {
+    min-height: 2.25rem;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.72rem;
+  }
+
+  .preview {
+    min-height: 0;
+  }
+
+  .launch-card,
+  .convective-panel,
+  .link-panel,
+  .campus-panel,
+  .md-gallery-panel {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+    border: 0;
+    padding: 0.65rem;
+    box-shadow: none;
+    overflow: auto;
+  }
+
+  .preview > .link-panel,
+  .preview > .convective-panel:not(.hrrr-panel),
+  .hrrr-panel {
+    width: 100%;
+    margin: 0;
+  }
+
+  .link-panel h3 {
+    width: 100%;
+    min-height: 1.9rem;
+    margin-bottom: 0.55rem;
+    padding: 0.28rem 0.5rem;
+    font-size: 0.94rem;
+  }
+
+  .link-panel-sections,
+  .convective-panel {
+    gap: 0.65rem;
+  }
+
+  .link-subsection {
+    gap: 0.45rem;
+    padding: 0.6rem;
+  }
+
+  .link-subsection h4,
+  .convective-day-group h4 {
+    font-size: 0.88rem;
+  }
+
+  .text-links,
+  .tile-grid,
+  .campus-grid {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .text-links a,
+  .text-links button {
+    min-height: 3rem;
+    border-radius: 0.4rem;
+    padding: 0.52rem 0.58rem 0.52rem 0.8rem;
+    font-size: 0.82rem;
+    line-height: 1.15;
+  }
+
+  .text-links button small {
+    font-size: 0.65rem;
+  }
+
+  .convective-text-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .convective-text-links a,
+  .convective-text-links button {
+    min-height: 2.4rem;
+    padding: 0.4rem 0.28rem;
+    font-size: 0.62rem;
+  }
+
+  .convective-day-groups {
+    gap: 0.65rem;
+  }
+
+  .convective-day-grid,
+  .day48-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .convective-tile {
+    gap: 0.35rem;
+    border-radius: 0.4rem;
+    padding: 0.45rem;
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  .convective-day-grid .convective-tile img,
+  .day48-grid .convective-tile img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .product-tabs,
+  .outlook-day-tabs,
+  .watch-text-tabs,
+  .zone-tabs {
+    flex-wrap: nowrap;
+    gap: 0.28rem;
+    padding: 0.38rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .product-tabs button,
+  .outlook-day-tabs button {
+    flex: 0 0 auto;
+    min-height: 1.85rem;
+    padding: 0 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .watch-text-source {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .watch-text-source strong {
+    flex: 1 1 100%;
+    font-size: 0.82rem;
+  }
+
+  .watch-case-toggle {
+    margin-left: 0;
+  }
+
+  .watch-text-document pre {
+    padding: 0.7rem;
+    font-size: 0.72rem;
+    line-height: 1.36;
+  }
+
+  .outlook-detail {
+    grid-template-rows: auto minmax(16rem, 0.9fr) minmax(16rem, 1fr);
+    gap: 0.45rem;
+    padding: 0.45rem;
+    overflow: auto;
+  }
+
+  .outlook-graphic {
+    gap: 0.55rem;
+    padding: 0.5rem;
+  }
+
+  .outlook-image-card {
+    min-height: 18rem;
+  }
+
+  .surface-dashboard,
+  .satrad-panel,
+  .lsr-map-panel,
+  .station-toolbar,
+  .station-viewer,
+  .hrrr-toolbar {
+    padding: 0.5rem;
+  }
+
+  .satrad-panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    overflow: auto;
+  }
+
+  .satrad-tile {
+    min-height: 14rem;
+  }
+
+  .surface-dashboard {
+    display: block;
+    height: 100%;
+  }
+
+  .surface-map-panel {
+    height: 18rem;
+  }
+
+  .weather-stats-panel {
+    margin-top: 0.55rem;
+  }
+
+  .station-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .station-toolbar .station-lookup {
+    grid-column: auto;
+  }
+
+  .station-mode-tabs {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .station-lookup,
+  .station-form {
+    grid-template-columns: 1fr;
+  }
+
+  .station-display {
+    height: 24rem;
+  }
+
+  .md-gallery-panel {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .md-gallery-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .md-gallery-column {
+    padding: 0.5rem;
+  }
+
+  .md-card {
+    grid-template-columns: 5.4rem minmax(0, 1fr);
+    gap: 0.5rem;
+    min-height: 6.6rem;
+    padding: 0.5rem;
+  }
+
+  .md-card img {
+    height: 5rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: none;
+  }
+
+  .layout {
+    grid-template-columns: minmax(9.5rem, 22vw) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    height: 100dvh;
+  }
+
+  .sidebar {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    min-height: 0;
+    padding: 0.4rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .product {
+    min-height: 1.7rem;
+    padding: 0.25rem 0.36rem;
+    font-size: 0.62rem;
+  }
+
+  .workspace {
+    padding: 0.35rem;
+  }
+
+  .workspace-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.45rem;
+    margin-bottom: 0.28rem;
+  }
+
+  .workspace-header .eyebrow {
+    display: none;
+  }
+
+  .workspace-header h2 {
+    font-size: 0.92rem;
+  }
+
+  .actions button,
+  .actions .button {
+    min-height: 1.65rem;
+    font-size: 0.58rem;
+  }
+
+  .viewer {
+    height: calc(100dvh - 2.35rem);
+    min-height: 0;
+  }
+
+  .viewer-status {
+    display: none;
+  }
+
+  .preview {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .outlook-detail {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .outlook-day-tabs {
+    grid-column: 1 / -1;
+  }
+
+  .outlook-image-card {
+    min-height: 0;
+  }
+}

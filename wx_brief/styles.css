@@ -499,6 +499,50 @@ button:disabled {
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
 }
 
+@media print {
+  body.printing-upper-air {
+    background: #fff;
+  }
+
+  body.printing-upper-air .site-header,
+  body.printing-upper-air .brief-sidebar,
+  body.printing-upper-air .viewer-status,
+  body.printing-upper-air .upper-air-actions,
+  body.printing-upper-air .leaflet-control-container {
+    display: none !important;
+  }
+
+  body.printing-upper-air .brief-layout,
+  body.printing-upper-air .viewer,
+  body.printing-upper-air .viewer-preview,
+  body.printing-upper-air .upper-air-panel {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    border: 0 !important;
+  }
+
+  body.printing-upper-air .upper-air-toolbar,
+  body.printing-upper-air .upper-air-legend {
+    border: 0;
+    border-radius: 0;
+    padding: 0.08in 0;
+    background: #fff;
+  }
+
+  body.printing-upper-air .upper-air-map {
+    width: 10.4in !important;
+    height: 7.2in !important;
+    border: 1px solid #222;
+    border-radius: 0;
+  }
+}
+
 .surface-map-panel,
 .weather-stats-panel {
   min-width: 0;

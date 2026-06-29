@@ -22,89 +22,118 @@ function send(res, status, body, contentType = "text/plain; charset=utf-8") {
 }
 
 const upperAirStations = [
-  ["UIL", "72797", "Quillayute", 47.95, -124.55],
-  ["SLE", "72694", "Salem", 44.92, -123.00],
-  ["MFR", "72597", "Medford", 42.37, -122.87],
-  ["OAK", "72493", "Oakland", 37.73, -122.22],
-  ["VBG", "72393", "Vandenberg", 34.73, -120.58],
-  ["NKX", "72293", "San Diego", 32.85, -117.12],
-  ["REV", "72489", "Reno", 39.57, -119.80],
-  ["BOI", "72681", "Boise", 43.57, -116.22],
-  ["LKN", "72582", "Elko", 40.86, -115.74],
-  ["SLC", "72572", "Salt Lake City", 40.77, -111.97],
-  ["FGZ", "72376", "Flagstaff", 35.23, -111.82],
-  ["TUS", "72274", "Tucson", 32.12, -110.93],
-  ["GJT", "72476", "Grand Junction", 39.12, -108.53],
-  ["DNR", "72469", "Denver", 39.75, -104.87],
-  ["ABQ", "72365", "Albuquerque", 35.04, -106.62],
-  ["EPZ", "72364", "Santa Teresa", 31.87, -106.70],
-  ["MAF", "72265", "Midland", 31.95, -102.18],
-  ["AMA", "72363", "Amarillo", 35.23, -101.70],
-  ["DDC", "72451", "Dodge City", 37.76, -99.97],
-  ["OUN", "72357", "Norman", 35.23, -97.46],
-  ["FWD", "72249", "Fort Worth", 32.83, -97.30],
-  ["DRT", "72261", "Del Rio", 29.37, -100.92],
-  ["BRO", "72250", "Brownsville", 25.90, -97.43],
-  ["CRP", "72251", "Corpus Christi", 27.77, -97.50],
-  ["SHV", "72248", "Shreveport", 32.45, -93.83],
-  ["LCH", "72240", "Lake Charles", 30.12, -93.22],
-  ["LIX", "72233", "Slidell", 30.34, -89.82],
-  ["JAN", "72235", "Jackson", 32.32, -90.08],
-  ["BMX", "72230", "Birmingham", 33.16, -86.77],
-  ["FFC", "72215", "Peachtree City", 33.36, -84.56],
-  ["TLH", "72214", "Tallahassee", 30.38, -84.37],
-  ["TBW", "72210", "Tampa Bay", 27.70, -82.40],
-  ["MFL", "72202", "Miami", 25.75, -80.38],
-  ["EYW", "72201", "Key West", 24.55, -81.78],
-  ["JAX", "72206", "Jacksonville", 30.49, -81.70],
-  ["CHS", "72208", "Charleston", 32.90, -80.03],
-  ["MHX", "72305", "Newport", 34.78, -76.88],
-  ["GSO", "72317", "Greensboro", 36.08, -79.95],
-  ["RNK", "72318", "Blacksburg", 37.20, -80.41],
-  ["WAL", "72402", "Wallops Island", 37.93, -75.48],
-  ["IAD", "72403", "Sterling", 38.98, -77.47],
-  ["GYX", "74389", "Gray", 43.89, -70.26],
-  ["PIT", "72520", "Pittsburgh", 40.53, -80.22],
-  ["BUF", "72528", "Buffalo", 42.94, -78.74],
-  ["ALB", "72518", "Albany", 42.75, -73.80],
-  ["OKX", "72501", "Upton", 40.87, -72.86],
-  ["CHH", "74494", "Chatham", 41.67, -69.97],
-  ["CAR", "72712", "Caribou", 46.87, -68.02],
-  ["APX", "72634", "Gaylord", 44.91, -84.72],
-  ["DTX", "72632", "Detroit", 42.70, -83.47],
-  ["GRB", "72645", "Green Bay", 44.48, -88.14],
-  ["DVN", "74455", "Davenport", 41.61, -90.58],
-  ["ILX", "74560", "Lincoln", 40.15, -89.34],
-  ["MPX", "72649", "Twin Cities", 44.85, -93.57],
-  ["INL", "72747", "International Falls", 48.57, -93.38],
-  ["BIS", "72764", "Bismarck", 46.77, -100.75],
-  ["UNR", "72662", "Rapid City", 44.07, -103.21],
-  ["OAX", "72558", "Omaha", 41.32, -96.36],
-  ["TOP", "72456", "Topeka", 39.07, -95.62],
-  ["SGF", "72440", "Springfield", 37.24, -93.40],
-  ["LZK", "72340", "Little Rock", 34.83, -92.26],
-  ["BNA", "72327", "Nashville", 36.25, -86.56]
+  ["KUIL", "72797", "Quillayute", 47.95, -124.55], ["KSLE", "72694", "Salem", 44.92, -123.00],
+  ["KMFR", "72597", "Medford", 42.37, -122.87], ["KOAK", "72493", "Oakland", 37.73, -122.22],
+  ["KVBG", "72393", "Vandenberg", 34.73, -120.58], ["KNKX", "72293", "San Diego", 32.85, -117.12],
+  ["KREV", "72489", "Reno", 39.57, -119.80], ["KBOI", "72681", "Boise", 43.57, -116.22],
+  ["KLKN", "72582", "Elko", 40.86, -115.74], ["KSLC", "72572", "Salt Lake City", 40.77, -111.97],
+  ["KFGZ", "72376", "Flagstaff", 35.23, -111.82], ["KTUS", "72274", "Tucson", 32.12, -110.93],
+  ["KGJT", "72476", "Grand Junction", 39.12, -108.53], ["KDNR", "72469", "Denver", 39.75, -104.87],
+  ["KABQ", "72365", "Albuquerque", 35.04, -106.62], ["KEPZ", "72364", "Santa Teresa", 31.87, -106.70],
+  ["KMAF", "72265", "Midland", 31.95, -102.18], ["KAMA", "72363", "Amarillo", 35.23, -101.70],
+  ["KDDC", "72451", "Dodge City", 37.76, -99.97], ["KOUN", "72357", "Norman", 35.23, -97.46],
+  ["KFWD", "72249", "Fort Worth", 32.83, -97.30], ["KDRT", "72261", "Del Rio", 29.37, -100.92],
+  ["KBRO", "72250", "Brownsville", 25.90, -97.43], ["KCRP", "72251", "Corpus Christi", 27.77, -97.50],
+  ["KSHV", "72248", "Shreveport", 32.45, -93.83], ["KLCH", "72240", "Lake Charles", 30.12, -93.22],
+  ["KLIX", "72233", "Slidell", 30.34, -89.82], ["KJAN", "72235", "Jackson", 32.32, -90.08],
+  ["KBMX", "72230", "Birmingham", 33.16, -86.77], ["KFFC", "72215", "Peachtree City", 33.36, -84.56],
+  ["KTLH", "72214", "Tallahassee", 30.38, -84.37], ["KTBW", "72210", "Tampa Bay", 27.70, -82.40],
+  ["KMFL", "72202", "Miami", 25.75, -80.38], ["KEYW", "72201", "Key West", 24.55, -81.78],
+  ["KJAX", "72206", "Jacksonville", 30.49, -81.70], ["KCHS", "72208", "Charleston", 32.90, -80.03],
+  ["KMHX", "72305", "Newport", 34.78, -76.88], ["KGSO", "72317", "Greensboro", 36.08, -79.95],
+  ["KRNK", "72318", "Blacksburg", 37.20, -80.41], ["KWAL", "72402", "Wallops Island", 37.93, -75.48],
+  ["KIAD", "72403", "Sterling", 38.98, -77.47], ["KGYX", "74389", "Gray", 43.89, -70.26],
+  ["KPIT", "72520", "Pittsburgh", 40.53, -80.22], ["KBUF", "72528", "Buffalo", 42.94, -78.74],
+  ["KALB", "72518", "Albany", 42.75, -73.80], ["KOKX", "72501", "Upton", 40.87, -72.86],
+  ["KCHH", "74494", "Chatham", 41.67, -69.97], ["KCAR", "72712", "Caribou", 46.87, -68.02],
+  ["KAPX", "72634", "Gaylord", 44.91, -84.72], ["KDTX", "72632", "Detroit", 42.70, -83.47],
+  ["KGRB", "72645", "Green Bay", 44.48, -88.14], ["KDVN", "74455", "Davenport", 41.61, -90.58],
+  ["KILX", "74560", "Lincoln", 40.15, -89.34], ["KMPX", "72649", "Twin Cities", 44.85, -93.57],
+  ["KINL", "72747", "International Falls", 48.57, -93.38], ["KBIS", "72764", "Bismarck", 46.77, -100.75],
+  ["KUNR", "72662", "Rapid City", 44.07, -103.21], ["KOAX", "72558", "Omaha", 41.32, -96.36],
+  ["KTOP", "72456", "Topeka", 39.07, -95.62], ["KSGF", "72440", "Springfield", 37.24, -93.40],
+  ["KLZK", "72340", "Little Rock", 34.83, -92.26], ["KBNA", "72327", "Nashville", 36.25, -86.56],
+  ["KDMX", "72546", "Des Moines", 41.73, -93.72], ["KNQA", "72334", "Memphis", 35.35, -89.87],
+  ["KFGF", "72757", "Grand Forks", 47.93, -97.08], ["KIWX", "72533", "North Webster", 41.36, -85.70],
+  ["KLSX", "72434", "St. Louis", 38.70, -90.68], ["KCLL", "", "College Station", 30.59, -96.36],
+  ["KHVR", "72777", "Havre", 48.54, -109.76],
+  ["CYVR", "71892", "Vancouver", 49.19, -123.18], ["CYYC", "71877", "Calgary", 51.12, -114.02],
+  ["CYXS", "71896", "Prince George", 53.88, -122.68], ["CYXY", "71964", "Whitehorse", 60.72, -135.07],
+  ["CYEV", "71957", "Inuvik", 68.30, -133.48], ["CYZF", "71936", "Yellowknife", 62.46, -114.44],
+  ["CYSM", "71934", "Fort Smith", 60.02, -111.97], ["CYQD", "71867", "The Pas", 53.97, -101.10],
+  ["CYQR", "71863", "Regina", 50.43, -104.67], ["CYWG", "71852", "Winnipeg", 49.91, -97.24],
+  ["CYQT", "71749", "Thunder Bay", 48.37, -89.32], ["CYMO", "71836", "Moosonee", 51.29, -80.61],
+  ["CYPL", "71845", "Pickle Lake", 51.45, -90.20], ["CYSB", "71730", "Sudbury", 46.63, -80.80],
+  ["CYOW", "71628", "Ottawa", 45.32, -75.67], ["CYUL", "71627", "Montreal", 45.47, -73.75],
+  ["CYQB", "71714", "Quebec City", 46.79, -71.39], ["CYYR", "71816", "Goose Bay", 53.32, -60.42],
+  ["CYJT", "71815", "Stephenville", 48.54, -58.55], ["CYQX", "71803", "Gander", 48.95, -54.57],
+  ["CYHZ", "71395", "Halifax", 44.88, -63.51], ["CYQI", "71603", "Yarmouth", 43.83, -66.09],
+  ["CYFB", "71909", "Iqaluit", 63.75, -68.55],
+  ["MMTJ", "76151", "Tijuana", 32.55, -116.97], ["MMHO", "76160", "Hermosillo", 29.08, -110.93],
+  ["MMLP", "76405", "La Paz", 24.07, -110.36], ["MMCU", "76225", "Chihuahua", 28.70, -105.97],
+  ["MMMY", "76394", "Monterrey", 25.78, -100.10], ["MMGL", "76612", "Guadalajara", 20.52, -103.31],
+  ["MMMX", "76679", "Mexico City", 19.43, -99.07], ["MMVR", "76692", "Veracruz", 19.15, -96.18],
+  ["MMMD", "76644", "Merida", 20.94, -89.66], ["MMUN", "76595", "Cancun", 21.04, -86.87]
 ];
 
-function latest11zRun() {
-  const now = new Date();
-  const run = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 11));
-  if (run.getTime() > now.getTime()) run.setUTCDate(run.getUTCDate() - 1);
+function formatRunDate(date) {
   return [
-    run.getUTCFullYear(),
-    String(run.getUTCMonth() + 1).padStart(2, "0"),
-    String(run.getUTCDate()).padStart(2, "0"),
-    "11"
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0"),
+    String(date.getUTCHours()).padStart(2, "0")
   ].join("");
 }
 
-function codRaobTextUrl(stationId) {
-  return `https://weather.cod.edu/climate-decom/products/analysis/raob/index.php?type=conus-current-current-text-K${stationId}-0`;
+function offsetRun(run, hourOffset) {
+  const text = String(run);
+  const date = new Date(Date.UTC(
+    Number(text.slice(0, 4)),
+    Number(text.slice(4, 6)) - 1,
+    Number(text.slice(6, 8)),
+    Number(text.slice(8, 10)) + hourOffset
+  ));
+  return formatRunDate(date);
 }
 
-function codForecastSoundingUrl(run, station, hour = 1) {
+function parseAnalysisDate(text) {
+  const value = String(text || "").trim().toUpperCase();
+  const compact = value.match(/(\d{4})(\d{2})(\d{2})(\d{2})/);
+  if (compact) {
+    return new Date(Date.UTC(
+      Number(compact[1]),
+      Number(compact[2]) - 1,
+      Number(compact[3]),
+      Number(compact[4])
+    ));
+  }
+  const months = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
+  const cod = value.match(/(\d{2})Z.*?\b(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})\b/);
+  if (!cod || months[cod[3]] == null) return null;
+  const year = Number(cod[4].length === 2 ? `20${cod[4]}` : cod[4]);
+  return new Date(Date.UTC(year, months[cod[3]], Number(cod[2]), Number(cod[1])));
+}
+
+function supplementTiming(url, observedStations) {
+  const requestedAnalysis = parseAnalysisDate(url.searchParams.get("analysis") || url.searchParams.get("cycle"));
+  const observedAnalysis = observedStations.map((station) => parseAnalysisDate(station?.validTime)).find(Boolean);
+  const analysisDate = requestedAnalysis || observedAnalysis || new Date();
+  const analysisRun = formatRunDate(analysisDate);
+  return {
+    analysisRun,
+    forecastRun: offsetRun(analysisRun, -3),
+    forecastHour: 3
+  };
+}
+
+function codRaobTextUrl(stationId) {
+  const id = stationId.length === 3 ? `K${stationId}` : stationId;
+  return `https://weather.cod.edu/climate-decom/products/analysis/raob/index.php?type=conus-current-current-text-${id}-0`;
+}
+
+function codForecastSoundingUrl(run, station, hour = 3, model = "RAP") {
   const [, , , lat, lon] = station;
-  const type = `${run}|HRRR|US|sfc|temp|${hour}|${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}|ml|severe`;
+  const type = `${run}|${model}|US|500|temp|${hour}|${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}|ml|severe`;
   return `https://weather.cod.edu/forecast/fsound/index.php?type=${encodeURIComponent(type)}`;
 }
 
@@ -219,10 +248,12 @@ async function loadObservedUpperStation(station, level) {
   }
 }
 
-async function loadForecastUpperStation(station, level, run, hour = 1) {
+async function loadForecastUpperStation(station, level, run, hour = 3) {
   const [id, number, name, lat, lon] = station;
+  const model = "RAP";
+  const candidateRun = run;
   try {
-    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour), 15000);
+    const text = await fetchTextWithTimeout(codForecastSoundingUrl(candidateRun, station, hour, model), 15000);
     const rows = parseUpperRows(text);
     const data = interpolateLevel(rows, level);
     const valid = text.match(/Date:\s*([^\n\r]+)/i);
@@ -236,9 +267,10 @@ async function loadForecastUpperStation(station, level, run, hour = 1) {
       level,
       source: "forecast",
       marker: "S",
-      run,
+      model,
+      run: candidateRun,
       forecastHour: hour,
-      validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
+      validTime: valid ? valid[1].trim() : `${candidateRun} F${String(hour).padStart(3, "0")}`,
       ...data
     };
   } catch {
@@ -254,17 +286,26 @@ async function proxyUpperAnalysis(url, res) {
   }
 
   try {
-    const forecastRun = String(url.searchParams.get("run") || latest11zRun()).replace(/[^0-9]/g, "").slice(0, 10);
-    const forecastHour = Number(url.searchParams.get("hour") || 1);
-    const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "model").toLowerCase();
+    const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "observed").toLowerCase();
+    let forecastRun = String(url.searchParams.get("run") || "").replace(/[^0-9]/g, "").slice(0, 10);
+    let forecastHour = Number(url.searchParams.get("hour") || 3);
+    let analysisRun = "";
     let stations;
     if (sourceMode === "observed") {
       const observed = await mapLimit(upperAirStations, 8, (station) => loadObservedUpperStation(station, level));
-      stations = await mapLimit(upperAirStations, 5, (station, index) => {
+      const timing = supplementTiming(url, observed.filter(Boolean));
+      analysisRun = timing.analysisRun;
+      forecastRun = forecastRun || timing.forecastRun;
+      forecastHour = Number.isFinite(forecastHour) ? forecastHour : timing.forecastHour;
+      stations = await mapLimit(upperAirStations, 2, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
         return loadForecastUpperStation(station, level, forecastRun, forecastHour);
       });
     } else {
+      const timing = supplementTiming(url, []);
+      analysisRun = timing.analysisRun;
+      forecastRun = forecastRun || timing.forecastRun;
+      forecastHour = Number.isFinite(forecastHour) ? forecastHour : timing.forecastHour;
       const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
       stations = await mapLimit(upperAirStations, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
@@ -276,13 +317,14 @@ async function proxyUpperAnalysis(url, res) {
     send(res, 200, JSON.stringify({
       level,
       sourceMode,
+      analysisRun,
       forecastRun,
       forecastHour,
       validTime,
       stations: validStations,
       sources: {
         observed: "COD RAOB sounding text",
-        forecast: "COD forecast fsound HRRR 11Z +1"
+        forecast: "COD RAP F003 forecast sounding from the run 3 hours before the analysis"
       }
     }), mimeTypes[".json"]);
   } catch (error) {

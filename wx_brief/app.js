@@ -641,7 +641,7 @@ function renderProduct(id, options = {}) {
   }
 
   if (product.type === "upper-air") {
-    viewerStatus.textContent = "Raw 500mb model-sounding station plots from COD";
+    viewerStatus.textContent = "Raw 500mb observed station plots with RAP sounding supplements";
     preview.append(renderUpperAirPanel(product));
   }
 
@@ -1213,13 +1213,14 @@ function renderUpperAirPanel(product) {
         <span class="upper-air-status" data-upper-status>Waiting for data...</span>
         <a class="button upper-air-pdf" href="${product.imageUrl}" target="_blank" rel="noreferrer">COD GIF</a>
         <a class="button upper-air-pdf" href="${product.pdfUrl}" target="_blank" rel="noreferrer">PDF</a>
+        <button type="button" data-upper-print>Save PDF</button>
         <button type="button" data-upper-refresh>Refresh</button>
       </div>
     </header>
     <div class="upper-air-map" data-upper-map></div>
     <footer class="upper-air-legend">
-      <span><i class="upper-air-s">S</i> COD HRRR 11Z +1 model sounding</span>
-      <span><i class="upper-air-dot"></i> observed RAOB fallback</span>
+      <span><i class="upper-air-dot"></i> COD observed RAOB</span>
+      <span><i class="upper-air-s">S</i> COD RAP F003 sounding supplement</span>
       <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
     </footer>
   `;
@@ -1255,7 +1256,7 @@ function renderUpperAirPanel(product) {
     }
     ensureMap();
     setStatus("Loading upper-air stations...");
-    const params = new URLSearchParams({ level: String(product.level), source: "model" });
+    const params = new URLSearchParams({ level: String(product.level), source: "observed" });
     const requestedCycle = pageParams.get("upperCycle");
     if (requestedCycle) params.set("cycle", requestedCycle);
     const upperServiceBase = pageParams.get("upperService") || localServiceBase || "";
@@ -1283,7 +1284,7 @@ function renderUpperAirPanel(product) {
         }
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
-        setStatus(`${stations.length} stations - ${forecast} model soundings${observed ? `, ${observed} observed fallback` : ""} - ${data.validTime || "latest run"}`);
+        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);
         window.setTimeout(() => map.invalidateSize(), 100);
       })
       .catch((error) => {
@@ -1293,6 +1294,13 @@ function renderUpperAirPanel(product) {
   }
 
   panel.querySelector("[data-upper-refresh]").addEventListener("click", load);
+  panel.querySelector("[data-upper-print]").addEventListener("click", () => {
+    document.body.classList.add("printing-upper-air");
+    window.setTimeout(() => {
+      window.print();
+      window.setTimeout(() => document.body.classList.remove("printing-upper-air"), 500);
+    }, 80);
+  });
   window.setTimeout(load, 0);
   return panel;
 }
@@ -1312,7 +1320,7 @@ function upperAirStationHtml(station) {
 }
 
 function upperAirTooltip(station) {
-  return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${station.source === "forecast" ? "forecast sounding" : "observed RAOB"}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
+  return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${station.source === "forecast" ? "RAP F003 sounding supplement" : "observed RAOB"}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
 }
 
 function formatUpperNumber(value) {

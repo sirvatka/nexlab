@@ -1211,19 +1211,16 @@ function renderUpperAirPanel(product) {
       </div>
       <div class="upper-air-actions">
         <span class="upper-air-status" data-upper-status>Waiting for data...</span>
+        <a class="button upper-air-pdf" href="${product.imageUrl}" target="_blank" rel="noreferrer">COD GIF</a>
         <a class="button upper-air-pdf" href="${product.pdfUrl}" target="_blank" rel="noreferrer">PDF</a>
         <button type="button" data-upper-refresh>Refresh</button>
       </div>
     </header>
-    <div class="upper-air-map cod-upper-display" data-upper-map>
-      <a class="cod-upper-image-link" href="${product.url}" target="_blank" rel="noreferrer">
-        <img src="${cacheBust(product.imageUrl)}" alt="${product.title}">
-      </a>
-    </div>
+    <div class="upper-air-map" data-upper-map></div>
     <footer class="upper-air-legend">
-      <span>COD current raw 500mb analysis</span>
-      <span>Refresh reloads the latest COD image</span>
-      <span>Experimental plotted station model service can still be tested with <code>upperService</code></span>
+      <span><i class="upper-air-dot"></i> COD observed RAOB</span>
+      <span><i class="upper-air-s">S</i> COD HRRR 11Z +1 forecast sounding fill</span>
+      <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
     </footer>
   `;
 
@@ -1252,12 +1249,6 @@ function renderUpperAirPanel(product) {
   }
 
   function load() {
-    if (!pageParams.get("upperService")) {
-      const image = panel.querySelector(".cod-upper-image-link img");
-      image.src = cacheBust(product.imageUrl);
-      setStatus("Loaded latest COD raw 500mb image");
-      return;
-    }
     if (!window.L) {
       setStatus("Map library did not load.", true);
       return;

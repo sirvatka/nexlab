@@ -78,44 +78,53 @@ const upperAirStations = [
   ["BNA", "72327", "Nashville", 36.25, -86.56]
 ];
 
-function latestUpperAirCycles(anchor = null) {
-  const now = anchor || new Date();
-  const latestHour = now.getUTCHours() >= 12 ? 12 : 0;
-  const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), latestHour));
-  if (!anchor && base.getTime() > now.getTime() - 90 * 60 * 1000) base.setUTCHours(base.getUTCHours() - 12);
-  return Array.from({ length: 4 }, (_, index) => new Date(base.getTime() - index * 12 * 60 * 60 * 1000));
+function latest11zRun() {
+  const now = new Date();
+  const run = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 11));
+  if (run.getTime() > now.getTime()) run.setUTCDate(run.getUTCDate() - 1);
+  return [
+    run.getUTCFullYear(),
+    String(run.getUTCMonth() + 1).padStart(2, "0"),
+    String(run.getUTCDate()).padStart(2, "0"),
+    "11"
+  ].join("");
 }
 
-function parseUpperCycle(value) {
-  const match = String(value || "").match(/^(\d{4})(\d{2})(\d{2})(\d{2})$/);
-  if (!match) return null;
-  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4])));
+function codRaobTextUrl(stationId) {
+  return `https://weather.cod.edu/climate-decom/products/analysis/raob/index.php?type=conus-current-current-text-K${stationId}-0`;
 }
 
-function upperAirUrl(stationNumber, cycle) {
-  const yyyy = cycle.getUTCFullYear();
-  const mm = String(cycle.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(cycle.getUTCDate()).padStart(2, "0");
-  const hh = String(cycle.getUTCHours()).padStart(2, "0");
-  return `https://weather.uwyo.edu/cgi-bin/sounding?region=naconf&TYPE=TEXT%3ALIST&YEAR=${yyyy}&MONTH=${mm}&FROM=${dd}${hh}&TO=${dd}${hh}&STNM=${stationNumber}`;
+function codForecastSoundingUrl(run, station, hour = 1) {
+  const [, , , lat, lon] = station;
+  const type = `${run}|HRRR|US|sfc|temp|${hour}|${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}|ml|severe`;
+  return `https://weather.cod.edu/forecast/fsound/index.php?type=${encodeURIComponent(type)}`;
 }
 
 function parseUpperRows(html) {
   const text = html.replace(/<[^>]+>/g, "\n");
   return text.split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => /^\d{3,4}(?:\.\d)?\s+/.test(line))
+    .filter((line) => /^\d+\s+/.test(line))
     .map((line) => {
       const parts = line.split(/\s+/).map(Number);
-      if (parts.length < 8 || parts.some((value, index) => index < 2 && !Number.isFinite(value))) return null;
-      return {
-        pres: parts[0],
-        height: parts[1],
-        temp: Number.isFinite(parts[2]) ? parts[2] : null,
-        dewp: Number.isFinite(parts[3]) ? parts[3] : null,
-        wdir: Number.isFinite(parts[6]) ? parts[6] : null,
-        wspd: Number.isFinite(parts[7]) ? parts[7] : null
+      if (parts.length < 8) return null;
+      const hasLevColumn = parts.length >= 10 && parts[1] >= 100 && parts[1] <= 1100;
+      const offset = hasLevColumn ? 1 : 0;
+      const row = {
+        pres: parts[offset],
+        height: parts[offset + 1],
+        temp: Number.isFinite(parts[offset + 2]) ? parts[offset + 2] : null,
+        dewp: Number.isFinite(parts[offset + 3]) ? parts[offset + 3] : null,
+        wdir: Number.isFinite(parts[offset + 7]) ? parts[offset + 7] : null,
+        wspd: Number.isFinite(parts[offset + 8]) ? parts[offset + 8] : null
       };
+      if (!Number.isFinite(row.pres) || row.pres < 100 || row.pres > 1100) return null;
+      if (!Number.isFinite(row.height) || row.height < -500 || row.height > 50000) return null;
+      if (row.temp != null && (row.temp < -120 || row.temp > 60)) return null;
+      if (row.dewp != null && (row.dewp < -140 || row.dewp > 60)) row.dewp = null;
+      if (row.wdir != null && (row.wdir < 0 || row.wdir > 360)) row.wdir = null;
+      if (row.wspd != null && (row.wspd < 0 || row.wspd > 250)) row.wspd = null;
+      return row;
     })
     .filter(Boolean)
     .sort((a, b) => b.pres - a.pres);
@@ -139,39 +148,70 @@ function interpolateLevel(rows, level) {
   };
 }
 
-async function loadObservedUpperStation(station, level, cycles) {
-  const [id, number, name, lat, lon] = station;
-  for (const cycle of cycles) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 4500);
-    try {
-      const response = await fetch(upperAirUrl(number, cycle), {
-        headers: { "User-Agent": "COD-NexLab-Upper-Air/1.0" },
-        signal: controller.signal
-      });
-      clearTimeout(timer);
-      if (!response.ok) continue;
-      const rows = parseUpperRows(await response.text());
-      const data = interpolateLevel(rows, level);
-      if (!data || data.temp == null || data.height == null) continue;
-      return {
-        id,
-        number,
-        name,
-        lat,
-        lon,
-        level,
-        source: "observed",
-        validTime: cycle.toISOString(),
-        ...data
-      };
-    } catch {
-      // Try the next cycle before giving up on this station.
-    } finally {
-      clearTimeout(timer);
-    }
+async function fetchTextWithTimeout(url, timeoutMs = 6500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "COD-NexLab-Upper-Air/1.0 (weather.cod.edu)" },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`source returned ${response.status}`);
+    return await response.text();
+  } finally {
+    clearTimeout(timer);
   }
-  return null;
+}
+
+async function loadObservedUpperStation(station, level) {
+  const [id, number, name, lat, lon] = station;
+  try {
+    const text = await fetchTextWithTimeout(codRaobTextUrl(id));
+    const rows = parseUpperRows(text);
+    const data = interpolateLevel(rows, level);
+    const valid = text.match(/Date:\s*([^\n\r]+)/i);
+    if (!data || data.temp == null || data.height == null) throw new Error("No observed level row");
+    return {
+      id,
+      number,
+      name,
+      lat,
+      lon,
+      level,
+      source: "observed",
+      validTime: valid ? valid[1].trim() : "COD current RAOB",
+      ...data
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function loadForecastUpperStation(station, level, run, hour = 1) {
+  const [id, number, name, lat, lon] = station;
+  try {
+    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour));
+    const rows = parseUpperRows(text);
+    const data = interpolateLevel(rows, level);
+    const valid = text.match(/Date:\s*([^\n\r]+)/i);
+    if (!data || data.temp == null || data.height == null) throw new Error("No forecast level row");
+    return {
+      id,
+      number,
+      name,
+      lat,
+      lon,
+      level,
+      source: "forecast",
+      marker: "S",
+      run,
+      forecastHour: hour,
+      validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
+      ...data
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function proxyUpperAnalysis(url, res) {
@@ -182,16 +222,25 @@ async function proxyUpperAnalysis(url, res) {
   }
 
   try {
-    const requestedCycle = parseUpperCycle(url.searchParams.get("cycle"));
-    const cycles = requestedCycle ? [requestedCycle] : latestUpperAirCycles();
-    const observed = await Promise.all(upperAirStations.map((station) => loadObservedUpperStation(station, level, cycles)));
-    const stations = observed.filter(Boolean);
-    const validTime = stations[0]?.validTime || cycles[0].toISOString();
+    const forecastRun = String(url.searchParams.get("run") || latest11zRun()).replace(/[^0-9]/g, "").slice(0, 10);
+    const forecastHour = Number(url.searchParams.get("hour") || 1);
+    const observed = await Promise.all(upperAirStations.map((station) => loadObservedUpperStation(station, level)));
+    const stations = await Promise.all(upperAirStations.map((station, index) => {
+      if (observed[index]) return Promise.resolve(observed[index]);
+      return loadForecastUpperStation(station, level, forecastRun, forecastHour);
+    }));
+    const validStations = stations.filter(Boolean);
+    const validTime = validStations[0]?.validTime || `COD HRRR ${forecastRun} F${forecastHour}`;
     send(res, 200, JSON.stringify({
       level,
+      forecastRun,
+      forecastHour,
       validTime,
-      stations,
-      note: "Forecast sounding fill is supported by the client marker format; connect the 11Z model sounding source to add S markers for missing observed stations."
+      stations: validStations,
+      sources: {
+        observed: "COD RAOB sounding text",
+        forecast: "COD forecast fsound HRRR 11Z +1"
+      }
     }), mimeTypes[".json"]);
   } catch (error) {
     send(res, 502, JSON.stringify({ error: error.message }), mimeTypes[".json"]);

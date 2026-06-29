@@ -9,7 +9,9 @@ const products = {
   "upper-air-500": {
     section: "Local Weather",
     title: "US 500mb Raw Upper-Air Plot",
-    url: "https://weather.uwyo.edu/upperair/sounding.shtml",
+    url: "https://weather.cod.edu/climate-decom/flanis/analysis/upper/index.php?type=US-500-raw-0",
+    imageUrl: "https://weather.cod.edu/wxdata/upper/US/500/current/US500raw.gif",
+    pdfUrl: "https://weather.cod.edu/wxdata/upper/US/pdf/current/US500.pdf",
     type: "upper-air",
     level: 500
   },
@@ -1209,14 +1211,19 @@ function renderUpperAirPanel(product) {
       </div>
       <div class="upper-air-actions">
         <span class="upper-air-status" data-upper-status>Waiting for data...</span>
+        <a class="button upper-air-pdf" href="${product.pdfUrl}" target="_blank" rel="noreferrer">PDF</a>
         <button type="button" data-upper-refresh>Refresh</button>
       </div>
     </header>
-    <div class="upper-air-map" data-upper-map></div>
+    <div class="upper-air-map cod-upper-display" data-upper-map>
+      <a class="cod-upper-image-link" href="${product.url}" target="_blank" rel="noreferrer">
+        <img src="${cacheBust(product.imageUrl)}" alt="${product.title}">
+      </a>
+    </div>
     <footer class="upper-air-legend">
-      <span><i class="upper-air-dot"></i> Observed RAOB</span>
-      <span><i class="upper-air-s">S</i> 1-hour forecast sounding fill</span>
-      <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
+      <span>COD current raw 500mb analysis</span>
+      <span>Refresh reloads the latest COD image</span>
+      <span>Experimental plotted station model service can still be tested with <code>upperService</code></span>
     </footer>
   `;
 
@@ -1245,6 +1252,12 @@ function renderUpperAirPanel(product) {
   }
 
   function load() {
+    if (!pageParams.get("upperService")) {
+      const image = panel.querySelector(".cod-upper-image-link img");
+      image.src = cacheBust(product.imageUrl);
+      setStatus("Loaded latest COD raw 500mb image");
+      return;
+    }
     if (!window.L) {
       setStatus("Map library did not load.", true);
       return;

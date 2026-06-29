@@ -310,6 +310,16 @@
     "baseline": true
   },
   {
+    "id": "CYKY",
+    "wmo": "",
+    "igra": "",
+    "lat": 51.5175,
+    "lon": -109.1808,
+    "elevM": 694,
+    "name": "Kindersley, SK",
+    "baseline": false
+  },
+  {
     "id": "CYPL",
     "wmo": "71845",
     "igra": "CAM00071845",
@@ -368,6 +378,16 @@
     "elevM": 227,
     "name": "Winnipeg",
     "baseline": true
+  },
+  {
+    "id": "CYQL",
+    "wmo": "",
+    "igra": "",
+    "lat": 49.6303,
+    "lon": -112.7997,
+    "elevM": 929,
+    "name": "Lethbridge, AB",
+    "baseline": false
   },
   {
     "id": "73111",
@@ -600,6 +620,16 @@
     "baseline": true
   },
   {
+    "id": "KIDA",
+    "wmo": "",
+    "igra": "",
+    "lat": 43.5146,
+    "lon": -112.0708,
+    "elevM": 1445,
+    "name": "Idaho Falls, ID",
+    "baseline": false
+  },
+  {
     "id": "72672",
     "wmo": "72672",
     "igra": "USM00072672",
@@ -638,6 +668,16 @@
     "elevM": 330.2,
     "name": "WHITE LAKE; MI. [MI]",
     "baseline": true
+  },
+  {
+    "id": "KONL",
+    "wmo": "",
+    "igra": "",
+    "lat": 42.4708,
+    "lon": -98.6881,
+    "elevM": 619,
+    "name": "O'Neill, NE",
+    "baseline": false
   },
   {
     "id": "KMFR",
@@ -830,6 +870,16 @@
     "baseline": false
   },
   {
+    "id": "KEVV",
+    "wmo": "",
+    "igra": "",
+    "lat": 38.0369,
+    "lon": -87.5324,
+    "elevM": 118,
+    "name": "Evansville, IN",
+    "baseline": false
+  },
+  {
     "id": "KDDC",
     "wmo": "72451",
     "igra": "USM00072451",
@@ -848,6 +898,16 @@
     "elevM": 2.5,
     "name": "OAKLAND/METROP. OAKLAND INT.; [CA]",
     "baseline": true
+  },
+  {
+    "id": "KSPD",
+    "wmo": "",
+    "igra": "",
+    "lat": 37.2833,
+    "lon": -102.6167,
+    "elevM": 1340,
+    "name": "Springfield, CO",
+    "baseline": false
   },
   {
     "id": "KSGF",

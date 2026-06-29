@@ -500,6 +500,11 @@ button:disabled {
 }
 
 @media print {
+  @page {
+    size: letter landscape;
+    margin: 0.25in;
+  }
+
   body.printing-upper-air {
     background: #fff;
   }
@@ -536,8 +541,8 @@ button:disabled {
   }
 
   body.printing-upper-air .upper-air-map {
-    width: 10.4in !important;
-    height: 7.2in !important;
+    width: 10.5in !important;
+    height: 7.35in !important;
     border: 1px solid #222;
     border-radius: 0;
   }

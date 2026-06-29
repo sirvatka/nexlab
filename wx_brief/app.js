@@ -1242,8 +1242,12 @@ function renderUpperAirPanel(product) {
       attributionControl: false,
       preferCanvas: true
     }).setView([39.2, -96.5], 4);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
       maxZoom: 9
+    }).addTo(map);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 9,
+      pane: "overlayPane"
     }).addTo(map);
     layer = L.layerGroup().addTo(map);
     L.control.attribution({ prefix: "" }).addAttribution("Upper air: COD sounding parser").addTo(map);

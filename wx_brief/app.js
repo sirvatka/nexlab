@@ -1221,7 +1221,6 @@ function renderUpperAirPanel(product) {
     <footer class="upper-air-legend">
       <span><i class="upper-air-dot"></i> COD observed RAOB</span>
       <span><i class="upper-air-s">S</i> COD RAP F003 sounding supplement</span>
-      <span><i class="upper-air-missing">?</i> no data returned</span>
       <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
     </footer>
   `;
@@ -1285,8 +1284,7 @@ function renderUpperAirPanel(product) {
         }
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
-        const missing = stations.filter((station) => station.source === "missing").length;
-        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""}${missing ? `, ${missing} missing` : ""} - ${data.validTime || "latest run"}`);
+        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);
         window.setTimeout(() => map.invalidateSize(), 100);
       })
       .catch((error) => {
@@ -1309,9 +1307,9 @@ function renderUpperAirPanel(product) {
 }
 
 function upperAirStationHtml(station) {
-  const marker = station.source === "forecast" ? "S" : station.source === "missing" ? "?" : "";
+  const marker = station.source === "forecast" ? "S" : "";
   return `
-    <div class="upper-station-model ${station.source === "forecast" ? "forecast" : station.source === "missing" ? "missing" : "observed"}">
+    <div class="upper-station-model ${station.source === "forecast" ? "forecast" : "observed"}">
       <span class="ua-temp">${formatUpperNumber(station.temp)}</span>
       <span class="ua-dewp">${formatUpperNumber(station.dewp)}</span>
       <span class="ua-height">${formatUpperHeight(station.height)}</span>
@@ -1323,7 +1321,7 @@ function upperAirStationHtml(station) {
 }
 
 function upperAirTooltip(station) {
-  const sourceLabel = station.source === "forecast" ? "RAP F003 sounding supplement" : station.source === "missing" ? "missing data" : "observed RAOB";
+  const sourceLabel = station.source === "forecast" ? "RAP F003 sounding supplement" : "observed RAOB";
   return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${sourceLabel}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
 }
 

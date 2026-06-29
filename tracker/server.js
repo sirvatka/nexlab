@@ -300,12 +300,14 @@ function missingUpperStation(station, level, analysisRun, forecastRun, forecastH
     lat,
     lon,
     level,
-    source: "missing",
-    missing: true,
+    source: "forecast",
+    marker: "S",
+    model: "RAP",
+    unavailable: true,
     analysisRun,
     run: forecastRun,
     forecastHour,
-    validTime: `No observed ${level}mb row or RAP F${String(forecastHour).padStart(3, "0")} supplement`
+    validTime: `RAP F${String(forecastHour).padStart(3, "0")} supplement unavailable`
   };
 }
 

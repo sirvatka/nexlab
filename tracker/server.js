@@ -50,7 +50,8 @@ const upperAirStations = [
   ["KGRB", "72645", "Green Bay", 44.48, -88.14], ["KDVN", "74455", "Davenport", 41.61, -90.58],
   ["KILX", "74560", "Lincoln", 40.15, -89.34], ["KMPX", "72649", "Twin Cities", 44.85, -93.57],
   ["KINL", "72747", "International Falls", 48.57, -93.38], ["KBIS", "72764", "Bismarck", 46.77, -100.75],
-  ["KUNR", "72662", "Rapid City", 44.07, -103.21], ["KOAX", "72558", "Omaha", 41.32, -96.36],
+  ["KUNR", "72662", "Rapid City", 44.07, -103.21], ["KLBF", "72562", "North Platte", 41.13, -100.68],
+  ["KOAX", "72558", "Omaha", 41.32, -96.36],
   ["KTOP", "72456", "Topeka", 39.07, -95.62], ["KSGF", "72440", "Springfield", 37.24, -93.40],
   ["KLZK", "72340", "Little Rock", 34.83, -92.26], ["KBNA", "72327", "Nashville", 36.25, -86.56],
   ["KDMX", "72546", "Des Moines", 41.73, -93.72], ["KNQA", "72334", "Memphis", 35.35, -89.87],
@@ -278,6 +279,24 @@ async function loadForecastUpperStation(station, level, run, hour = 3) {
   }
 }
 
+function missingUpperStation(station, level, analysisRun, forecastRun, forecastHour) {
+  const [id, number, name, lat, lon] = station;
+  return {
+    id,
+    number,
+    name,
+    lat,
+    lon,
+    level,
+    source: "missing",
+    missing: true,
+    analysisRun,
+    run: forecastRun,
+    forecastHour,
+    validTime: `No observed ${level}mb row or RAP F${String(forecastHour).padStart(3, "0")} supplement`
+  };
+}
+
 async function proxyUpperAnalysis(url, res) {
   const level = Number(url.searchParams.get("level") || 500);
   if (!Number.isFinite(level) || level < 100 || level > 1000) {
@@ -299,7 +318,8 @@ async function proxyUpperAnalysis(url, res) {
       forecastHour = Number.isFinite(forecastHour) ? forecastHour : timing.forecastHour;
       stations = await mapLimit(upperAirStations, 2, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
-        return loadForecastUpperStation(station, level, forecastRun, forecastHour);
+        return loadForecastUpperStation(station, level, forecastRun, forecastHour)
+          .then((forecast) => forecast || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
       });
     } else {
       const timing = supplementTiming(url, []);
@@ -309,11 +329,11 @@ async function proxyUpperAnalysis(url, res) {
       const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
       stations = await mapLimit(upperAirStations, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
-        return loadObservedUpperStation(station, level);
+        return loadObservedUpperStation(station, level)
+          .then((observedStation) => observedStation || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
       });
     }
-    const validStations = stations.filter(Boolean);
-    const validTime = validStations[0]?.validTime || `COD HRRR ${forecastRun} F${forecastHour}`;
+    const validTime = stations.find((station) => !station.missing)?.validTime || `COD RAP ${forecastRun} F${forecastHour}`;
     send(res, 200, JSON.stringify({
       level,
       sourceMode,
@@ -321,7 +341,7 @@ async function proxyUpperAnalysis(url, res) {
       forecastRun,
       forecastHour,
       validTime,
-      stations: validStations,
+      stations,
       sources: {
         observed: "COD RAOB sounding text",
         forecast: "COD RAP F003 forecast sounding from the run 3 hours before the analysis"

@@ -1213,7 +1213,7 @@ function renderUpperAirPanel(product) {
         <span class="upper-air-status" data-upper-status>Waiting for data...</span>
         <a class="button upper-air-pdf" href="${product.imageUrl}" target="_blank" rel="noreferrer">COD GIF</a>
         <a class="button upper-air-pdf" href="${product.pdfUrl}" target="_blank" rel="noreferrer">PDF</a>
-        <button type="button" data-upper-print>Save PDF</button>
+        <button type="button" data-upper-print>Create PDF Map</button>
         <button type="button" data-upper-refresh>Refresh</button>
       </div>
     </header>
@@ -1221,6 +1221,7 @@ function renderUpperAirPanel(product) {
     <footer class="upper-air-legend">
       <span><i class="upper-air-dot"></i> COD observed RAOB</span>
       <span><i class="upper-air-s">S</i> COD RAP F003 sounding supplement</span>
+      <span><i class="upper-air-missing">?</i> no data returned</span>
       <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
     </footer>
   `;
@@ -1284,7 +1285,8 @@ function renderUpperAirPanel(product) {
         }
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
-        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);
+        const missing = stations.filter((station) => station.source === "missing").length;
+        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""}${missing ? `, ${missing} missing` : ""} - ${data.validTime || "latest run"}`);
         window.setTimeout(() => map.invalidateSize(), 100);
       })
       .catch((error) => {
@@ -1296,6 +1298,7 @@ function renderUpperAirPanel(product) {
   panel.querySelector("[data-upper-refresh]").addEventListener("click", load);
   panel.querySelector("[data-upper-print]").addEventListener("click", () => {
     document.body.classList.add("printing-upper-air");
+    if (map) map.invalidateSize();
     window.setTimeout(() => {
       window.print();
       window.setTimeout(() => document.body.classList.remove("printing-upper-air"), 500);
@@ -1306,9 +1309,9 @@ function renderUpperAirPanel(product) {
 }
 
 function upperAirStationHtml(station) {
-  const marker = station.source === "forecast" ? "S" : "";
+  const marker = station.source === "forecast" ? "S" : station.source === "missing" ? "?" : "";
   return `
-    <div class="upper-station-model ${station.source === "forecast" ? "forecast" : "observed"}">
+    <div class="upper-station-model ${station.source === "forecast" ? "forecast" : station.source === "missing" ? "missing" : "observed"}">
       <span class="ua-temp">${formatUpperNumber(station.temp)}</span>
       <span class="ua-dewp">${formatUpperNumber(station.dewp)}</span>
       <span class="ua-height">${formatUpperHeight(station.height)}</span>
@@ -1320,7 +1323,8 @@ function upperAirStationHtml(station) {
 }
 
 function upperAirTooltip(station) {
-  return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${station.source === "forecast" ? "RAP F003 sounding supplement" : "observed RAOB"}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
+  const sourceLabel = station.source === "forecast" ? "RAP F003 sounding supplement" : station.source === "missing" ? "missing data" : "observed RAOB";
+  return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${sourceLabel}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
 }
 
 function formatUpperNumber(value) {
@@ -1342,17 +1346,17 @@ function upperAirWindBarbSvg(direction, speed) {
   let y = -32;
   const parts = ['<line x1="0" y1="0" x2="0" y2="-34"></line>'];
   while (remaining >= 50) {
-    parts.push(`<path d="M 0 ${y} L 12 ${y + 5} L 0 ${y + 10} Z"></path>`);
+    parts.push(`<path d="M 0 ${y} L -12 ${y + 5} L 0 ${y + 10} Z"></path>`);
     remaining -= 50;
     y += 10;
   }
   while (remaining >= 10) {
-    parts.push(`<line x1="0" y1="${y}" x2="12" y2="${y + 5}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="-12" y2="${y + 5}"></line>`);
     remaining -= 10;
     y += 5;
   }
   if (remaining >= 5) {
-    parts.push(`<line x1="0" y1="${y}" x2="7" y2="${y + 3}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="-7" y2="${y + 3}"></line>`);
   }
   return `<svg class="ua-barb" viewBox="-18 -42 42 52" aria-hidden="true"><g transform="translate(0,0) rotate(${dir})">${parts.join("")}</g></svg>`;
 }

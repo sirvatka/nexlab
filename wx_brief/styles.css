@@ -380,7 +380,8 @@ button:disabled {
 }
 
 .upper-air-dot,
-.upper-air-s {
+.upper-air-s,
+.upper-air-missing {
   display: inline-grid;
   place-items: center;
   width: 0.85rem;
@@ -398,6 +399,11 @@ button:disabled {
   border-radius: 0;
   border-color: transparent;
   background: transparent;
+}
+
+.upper-air-missing {
+  border-color: #8b2f2f;
+  color: #8b2f2f;
 }
 
 .upper-air-marker {
@@ -436,6 +442,15 @@ button:disabled {
 .upper-station-model.forecast::before {
   border-color: transparent;
   background: transparent;
+}
+
+.upper-station-model.missing::before {
+  border-color: #8b2f2f;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.upper-station-model.missing {
+  opacity: 0.82;
 }
 
 .ua-center {

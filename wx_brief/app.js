@@ -6,6 +6,13 @@ const products = {
     type: "surface-dashboard",
     fit: "contain"
   },
+  "upper-air-500": {
+    section: "Local Weather",
+    title: "US 500mb Raw Upper-Air Plot",
+    url: "https://weather.uwyo.edu/upperair/sounding.shtml",
+    type: "upper-air",
+    level: 500
+  },
   "spc-day1": {
     section: "Severe Weather",
     title: "SPC Day 1 Categorical",
@@ -547,6 +554,8 @@ const refresh = document.querySelector("#refresh");
 const backView = document.querySelector("#back-view");
 let selectedId = "chi-surface";
 let viewHistory = [];
+const localServiceBase = ["127.0.0.1", "localhost", ""].includes(window.location.hostname) ? "http://127.0.0.1:8787" : "";
+const pageParams = new URLSearchParams(window.location.search);
 
 function updateClock() {
   const now = new Date();
@@ -627,6 +636,11 @@ function renderProduct(id, options = {}) {
   if (product.type === "surface-dashboard") {
     viewerStatus.textContent = "Chicago surface analysis with COD campus weather statistics";
     preview.append(renderSurfaceDashboard(product));
+  }
+
+  if (product.type === "upper-air") {
+    viewerStatus.textContent = "Raw 500mb observed station plots with forecast sounding fill markers";
+    preview.append(renderUpperAirPanel(product));
   }
 
   if (product.type === "launch") {
@@ -1182,6 +1196,154 @@ function renderAviationViewer(defaultStation) {
 
   loadStation(defaultStation);
   return panel;
+}
+
+function renderUpperAirPanel(product) {
+  const panel = document.createElement("div");
+  panel.className = "upper-air-panel";
+  panel.innerHTML = `
+    <header class="upper-air-toolbar">
+      <div>
+        <p class="eyebrow">Raw Upper-Air Analysis</p>
+        <h3>${product.level}mb station model</h3>
+      </div>
+      <div class="upper-air-actions">
+        <span class="upper-air-status" data-upper-status>Waiting for data...</span>
+        <button type="button" data-upper-refresh>Refresh</button>
+      </div>
+    </header>
+    <div class="upper-air-map" data-upper-map></div>
+    <footer class="upper-air-legend">
+      <span><i class="upper-air-dot"></i> Observed RAOB</span>
+      <span><i class="upper-air-s">S</i> 1-hour forecast sounding fill</span>
+      <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
+    </footer>
+  `;
+
+  const status = panel.querySelector("[data-upper-status]");
+  const mapNode = panel.querySelector("[data-upper-map]");
+  let map = null;
+  let layer = null;
+
+  function setStatus(text, error = false) {
+    status.textContent = text;
+    status.classList.toggle("error", error);
+  }
+
+  function ensureMap() {
+    if (map || !window.L) return;
+    map = L.map(mapNode, {
+      zoomControl: true,
+      attributionControl: false,
+      preferCanvas: true
+    }).setView([39.2, -96.5], 4);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 9
+    }).addTo(map);
+    layer = L.layerGroup().addTo(map);
+    L.control.attribution({ prefix: "" }).addAttribution("Upper air: Wyoming/COD local parser").addTo(map);
+  }
+
+  function load() {
+    if (!window.L) {
+      setStatus("Map library did not load.", true);
+      return;
+    }
+    ensureMap();
+    setStatus("Loading upper-air stations...");
+    const params = new URLSearchParams({ level: String(product.level) });
+    const requestedCycle = pageParams.get("upperCycle");
+    if (requestedCycle) params.set("cycle", requestedCycle);
+    const upperServiceBase = pageParams.get("upperService") || localServiceBase || "";
+    const endpoint = `${upperServiceBase}/api/upper-analysis?${params.toString()}`;
+    fetch(cacheBust(endpoint), { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`upper-air service returned ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        layer.clearLayers();
+        const stations = Array.isArray(data.stations) ? data.stations : [];
+        stations.forEach((station) => {
+          L.marker([station.lat, station.lon], {
+            icon: L.divIcon({
+              className: "upper-air-marker",
+              html: upperAirStationHtml(station),
+              iconSize: [86, 70],
+              iconAnchor: [43, 35]
+            })
+          }).bindTooltip(upperAirTooltip(station), { direction: "top", opacity: 0.95 }).addTo(layer);
+        });
+        if (stations.length > 0) {
+          map.fitBounds(L.latLngBounds(stations.map((station) => [station.lat, station.lon])), { padding: [22, 22], maxZoom: 5 });
+        }
+        const observed = stations.filter((station) => station.source === "observed").length;
+        const forecast = stations.filter((station) => station.source === "forecast").length;
+        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} forecast fills` : ""} - ${data.validTime || "latest run"}`);
+        window.setTimeout(() => map.invalidateSize(), 100);
+      })
+      .catch((error) => {
+        setStatus(`Upper-air plot needs local service: ${error.message}`, true);
+        if (layer) layer.clearLayers();
+      });
+  }
+
+  panel.querySelector("[data-upper-refresh]").addEventListener("click", load);
+  window.setTimeout(load, 0);
+  return panel;
+}
+
+function upperAirStationHtml(station) {
+  const marker = station.source === "forecast" ? "S" : "";
+  return `
+    <div class="upper-station-model ${station.source === "forecast" ? "forecast" : "observed"}">
+      <span class="ua-temp">${formatUpperNumber(station.temp)}</span>
+      <span class="ua-dewp">${formatUpperNumber(station.dewp)}</span>
+      <span class="ua-height">${formatUpperHeight(station.height)}</span>
+      <span class="ua-id">${escapeHtml(station.id)}</span>
+      <span class="ua-center">${marker}</span>
+      ${upperAirWindBarbSvg(station.wdir, station.wspd)}
+    </div>
+  `;
+}
+
+function upperAirTooltip(station) {
+  return `${station.id} ${station.name || ""}<br>${station.level || 500}mb ${station.source === "forecast" ? "forecast sounding" : "observed RAOB"}<br>Temp ${formatUpperNumber(station.temp)} C, Td ${formatUpperNumber(station.dewp)} C<br>Height ${formatUpperHeight(station.height)} dam, Wind ${Math.round(station.wdir || 0)}/${Math.round(station.wspd || 0)} kt`;
+}
+
+function formatUpperNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? String(Math.round(number)) : "";
+}
+
+function formatUpperHeight(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "";
+  return String(Math.round(number / 10)).slice(-3).padStart(3, "0");
+}
+
+function upperAirWindBarbSvg(direction, speed) {
+  const dir = Number(direction);
+  const spd = Math.max(0, Math.round(Number(speed) / 5) * 5);
+  if (!Number.isFinite(dir) || !spd) return "";
+  const rotate = dir + 180;
+  let remaining = spd;
+  let y = 8;
+  const parts = ['<line x1="0" y1="0" x2="0" y2="-30"></line>'];
+  while (remaining >= 50) {
+    parts.push(`<path d="M 0 ${-y} L 12 ${-(y + 5)} L 0 ${-(y + 10)} Z"></path>`);
+    remaining -= 50;
+    y += 10;
+  }
+  while (remaining >= 10) {
+    parts.push(`<line x1="0" y1="${-y}" x2="12" y2="${-(y + 5)}"></line>`);
+    remaining -= 10;
+    y += 5;
+  }
+  if (remaining >= 5) {
+    parts.push(`<line x1="0" y1="${-y}" x2="7" y2="${-(y + 3)}"></line>`);
+  }
+  return `<svg class="ua-barb" viewBox="-18 -42 36 48" aria-hidden="true"><g transform="translate(0,0) rotate(${rotate})">${parts.join("")}</g></svg>`;
 }
 
 function renderSurfaceDashboard(product) {

@@ -154,6 +154,19 @@ function codForecastSoundingUrl(run, station, hour = 3, model = "RAP") {
   return `https://weather.cod.edu/forecast/fsound/index.php?type=${encodeURIComponent(type)}`;
 }
 
+function stationAtOffset(station, latOffset, lonOffset) {
+  const copy = [...station];
+  copy[3] = Number(station[3]) + latOffset;
+  copy[4] = Number(station[4]) + lonOffset;
+  return copy;
+}
+
+function isLikelyRapDomain(station) {
+  const lat = Number(station[3]);
+  const lon = Number(station[4]);
+  return lat >= 20 && lat <= 55 && lon >= -130 && lon <= -60;
+}
+
 function parseUpperRows(html) {
   const text = html.replace(/<[^>]+>/g, "\n");
   return text.split(/\r?\n/)
@@ -268,30 +281,41 @@ async function loadObservedUpperStation(station, level) {
 async function loadForecastUpperStation(station, level, run, hour = 3) {
   const [id, number, name, lat, lon] = station;
   const model = "RAP";
-  try {
-    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour, model), 15000);
-    const rows = parseUpperRows(text);
-    const data = interpolateLevel(rows, level);
-    const valid = text.match(/Date:\s*([^\n\r]+)/i);
-    if (!data || data.temp == null || data.height == null) throw new Error("No forecast level row");
-    return {
-      id,
-      number,
-      name,
-      lat,
-      lon,
-      level,
-      source: "forecast",
-      marker: "S",
-      model,
-      run,
-      forecastHour: hour,
-      validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
-      ...data
-    };
-  } catch {
-    return null;
+  const offsets = isLikelyRapDomain(station) ? [
+    [0, 0], [0.1, 0], [-0.1, 0], [0, 0.1], [0, -0.1],
+    [0.1, 0.1], [0.1, -0.1], [-0.1, 0.1], [-0.1, -0.1],
+    [0.25, 0], [-0.25, 0], [0, 0.25], [0, -0.25]
+  ] : [[0, 0]];
+  for (const [latOffset, lonOffset] of offsets) {
+    try {
+      const sampleStation = stationAtOffset(station, latOffset, lonOffset);
+      const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, sampleStation, hour, model), 15000);
+      const rows = parseUpperRows(text);
+      const data = interpolateLevel(rows, level);
+      const valid = text.match(/Date:\s*([^\n\r]+)/i);
+      if (!data || data.temp == null || data.height == null) throw new Error("No forecast level row");
+      return {
+        id,
+        number,
+        name,
+        lat,
+        lon,
+        level,
+        source: "forecast",
+        marker: "S",
+        model,
+        run,
+        forecastHour: hour,
+        sampleLat: sampleStation[3],
+        sampleLon: sampleStation[4],
+        validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
+        ...data
+      };
+    } catch {
+      // Try a nearby RAP grid point for the same 09Z F003 valid time.
+    }
   }
+  return null;
 }
 
 function missingUpperStation(station, level, analysisRun, forecastRun, forecastHour) {
@@ -333,7 +357,7 @@ async function proxyUpperAnalysis(url, res) {
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
-      stations = await mapLimit(upperAirStations, 1, (station, index) => {
+      stations = await mapLimit(upperAirStations, 2, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
         return loadForecastUpperStation(station, level, forecastRun, forecastHour)
           .then((forecast) => forecast || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
@@ -343,7 +367,7 @@ async function proxyUpperAnalysis(url, res) {
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
-      const forecast = await mapLimit(upperAirStations, 1, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
+      const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
       stations = await mapLimit(upperAirStations, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
         return loadObservedUpperStation(station, level)

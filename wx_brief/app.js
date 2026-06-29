@@ -1275,8 +1275,8 @@ function renderUpperAirPanel(product) {
             icon: L.divIcon({
               className: "upper-air-marker",
               html: upperAirStationHtml(station),
-              iconSize: [86, 70],
-              iconAnchor: [43, 35]
+              iconSize: [172, 140],
+              iconAnchor: [86, 70]
             })
           }).bindTooltip(upperAirTooltip(station), { direction: "top", opacity: 0.95 }).addTo(layer);
         });
@@ -1343,22 +1343,22 @@ function upperAirWindBarbSvg(direction, speed) {
   const spd = Math.max(0, Math.round(Number(speed) / 5) * 5);
   if (!Number.isFinite(dir) || !spd) return "";
   let remaining = spd;
-  let y = -32;
-  const parts = ['<line x1="0" y1="0" x2="0" y2="-34"></line>'];
+  let y = -64;
+  const parts = ['<line x1="0" y1="0" x2="0" y2="-68"></line>'];
   while (remaining >= 50) {
-    parts.push(`<path d="M 0 ${y} L -12 ${y + 5} L 0 ${y + 10} Z"></path>`);
+    parts.push(`<path d="M 0 ${y} L 24 ${y - 10} L 0 ${y + 20} Z"></path>`);
     remaining -= 50;
-    y += 10;
+    y += 20;
   }
   while (remaining >= 10) {
-    parts.push(`<line x1="0" y1="${y}" x2="-12" y2="${y + 5}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="24" y2="${y - 10}"></line>`);
     remaining -= 10;
-    y += 5;
+    y += 10;
   }
   if (remaining >= 5) {
-    parts.push(`<line x1="0" y1="${y}" x2="-7" y2="${y + 3}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="14" y2="${y - 6}"></line>`);
   }
-  return `<svg class="ua-barb" viewBox="-18 -42 42 52" aria-hidden="true"><g transform="translate(0,0) rotate(${dir})">${parts.join("")}</g></svg>`;
+  return `<svg class="ua-barb" viewBox="-36 -84 84 104" aria-hidden="true"><g transform="translate(0,0) rotate(${dir})">${parts.join("")}</g></svg>`;
 }
 
 function renderSurfaceDashboard(product) {

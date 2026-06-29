@@ -1,0 +1,1422 @@
+﻿[
+    {
+        "id":  "71082",
+        "wmo":  "71082",
+        "igra":  "CAM00071082",
+        "lat":  82.5,
+        "lon":  -62.3333,
+        "elevM":  65.4,
+        "name":  "ALERT UA; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "71917",
+        "wmo":  "71917",
+        "igra":  "CAM00071917",
+        "lat":  79.9833,
+        "lon":  -85.9333,
+        "elevM":  10.4,
+        "name":  "EUREKA A; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "71924",
+        "wmo":  "71924",
+        "igra":  "CAM00071924",
+        "lat":  74.7169,
+        "lon":  -94.9694,
+        "elevM":  67.7,
+        "name":  "RESOLUTE CARS; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "70026",
+        "wmo":  "70026",
+        "igra":  "USM00070026",
+        "lat":  71.2889,
+        "lon":  -156.7833,
+        "elevM":  11.9,
+        "name":  "BARROW/W. POST W. ROGERS [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "71925",
+        "wmo":  "71925",
+        "igra":  "CAM00071925",
+        "lat":  69.1081,
+        "lon":  -105.1383,
+        "elevM":  31.1,
+        "name":  "CAMBRIDGE BAY A; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "71081",
+        "wmo":  "71081",
+        "igra":  "CAM00071081",
+        "lat":  68.7667,
+        "lon":  -81.2167,
+        "elevM":  5.9,
+        "name":  "HALL BEACH UA; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "CYEV",
+        "wmo":  "71957",
+        "igra":  "CAM00071957",
+        "lat":  68.3,
+        "lon":  -133.4833,
+        "elevM":  67.7,
+        "name":  "INUVIK AWOS A; NWT",
+        "baseline":  true
+    },
+    {
+        "id":  "71043",
+        "wmo":  "71043",
+        "igra":  "CAM00071043",
+        "lat":  65.2825,
+        "lon":  -126.8002,
+        "elevM":  72.5,
+        "name":  "NORMAN WELLS A; NWT",
+        "baseline":  true
+    },
+    {
+        "id":  "70261",
+        "wmo":  "70261",
+        "igra":  "USM00070261",
+        "lat":  64.8161,
+        "lon":  -147.8766,
+        "elevM":  133.7,
+        "name":  "FAIRBANKS/INT.; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "70200",
+        "wmo":  "70200",
+        "igra":  "USM00070200",
+        "lat":  64.5072,
+        "lon":  -165.4347,
+        "elevM":  6.5,
+        "name":  "NOME; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "71926",
+        "wmo":  "71926",
+        "igra":  "CAM00071926",
+        "lat":  64.2989,
+        "lon":  -96.0778,
+        "elevM":  18.6,
+        "name":  "BAKER LAKE A; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "CYFB",
+        "wmo":  "71909",
+        "igra":  "CAM00071909",
+        "lat":  63.75,
+        "lon":  -68.55,
+        "elevM":  33.5,
+        "name":  "IQALUIT A; NU",
+        "baseline":  true
+    },
+    {
+        "id":  "70231",
+        "wmo":  "70231",
+        "igra":  "USM00070231",
+        "lat":  62.9583,
+        "lon":  -155.5977,
+        "elevM":  103,
+        "name":  "MCGRATH; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "70273",
+        "wmo":  "70273",
+        "igra":  "USM00070273",
+        "lat":  61.1567,
+        "lon":  -149.9863,
+        "elevM":  52.1,
+        "name":  "ANCHORAGE/INT.; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "70219",
+        "wmo":  "70219",
+        "igra":  "USM00070219",
+        "lat":  60.785,
+        "lon":  -161.84,
+        "elevM":  33,
+        "name":  "BETHEL/BETHEL AIRPORT; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "CYXY",
+        "wmo":  "71964",
+        "igra":  "CAM00071964",
+        "lat":  60.7094,
+        "lon":  -135.0688,
+        "elevM":  706.2,
+        "name":  "WHITEHORSE A; YT",
+        "baseline":  true
+    },
+    {
+        "id":  "CYSM",
+        "wmo":  "71934",
+        "igra":  "CAM00071934",
+        "lat":  60.0203,
+        "lon":  -111.9619,
+        "elevM":  205.1,
+        "name":  "FORT SMITH A; NWT",
+        "baseline":  true
+    },
+    {
+        "id":  "70361",
+        "wmo":  "70361",
+        "igra":  "USM00070361",
+        "lat":  59.5167,
+        "lon":  -139.6666,
+        "elevM":  10.7,
+        "name":  "YAKUTAT; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "71945",
+        "wmo":  "71945",
+        "igra":  "CAM00071945",
+        "lat":  58.8364,
+        "lon":  -122.5972,
+        "elevM":  381.9,
+        "name":  "FORT NELSON A; BC",
+        "baseline":  true
+    },
+    {
+        "id":  "71913",
+        "wmo":  "71913",
+        "igra":  "CAM00071913",
+        "lat":  58.7333,
+        "lon":  -94.0667,
+        "elevM":  28.5,
+        "name":  "CHURCHILL A UA; MAN",
+        "baseline":  true
+    },
+    {
+        "id":  "70326",
+        "wmo":  "70326",
+        "igra":  "USM00070326",
+        "lat":  58.6794,
+        "lon":  -156.6683,
+        "elevM":  8.4,
+        "name":  "KING SALMON; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "71907",
+        "wmo":  "71907",
+        "igra":  "CAM00071907",
+        "lat":  58.4673,
+        "lon":  -78.0787,
+        "elevM":  23.1,
+        "name":  "INUKJUAK A; QUE",
+        "baseline":  true
+    },
+    {
+        "id":  "71906",
+        "wmo":  "71906",
+        "igra":  "CAM00071906",
+        "lat":  58.1,
+        "lon":  -68.4167,
+        "elevM":  39.9,
+        "name":  "KUUJJUAQ A; QUE",
+        "baseline":  true
+    },
+    {
+        "id":  "70350",
+        "wmo":  "70350",
+        "igra":  "USM00070350",
+        "lat":  57.7431,
+        "lon":  -152.4866,
+        "elevM":  5,
+        "name":  "KODIAK; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "70316",
+        "wmo":  "70316",
+        "igra":  "USM00070316",
+        "lat":  55.2011,
+        "lon":  -162.7163,
+        "elevM":  25.3,
+        "name":  "COLD BAY; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "70398",
+        "wmo":  "70398",
+        "igra":  "USM00070398",
+        "lat":  55.0389,
+        "lon":  -131.5777,
+        "elevM":  34.7,
+        "name":  "ANNETTE ISLAND; AK [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "CYQD",
+        "wmo":  "71867",
+        "igra":  "CAM00071867",
+        "lat":  53.9667,
+        "lon":  -101.1,
+        "elevM":  270.4,
+        "name":  "THE PAS A; MAN",
+        "baseline":  true
+    },
+    {
+        "id":  "71908",
+        "wmo":  "71908",
+        "igra":  "CAM00071908",
+        "lat":  53.9,
+        "lon":  -122.79,
+        "elevM":  600.5,
+        "name":  "PRINCE GEORGE UA; BC",
+        "baseline":  true
+    },
+    {
+        "id":  "71119",
+        "wmo":  "71119",
+        "igra":  "CAM00071119",
+        "lat":  53.5475,
+        "lon":  -114.1083,
+        "elevM":  766.3,
+        "name":  "STONY PLAIN UA; ALTA",
+        "baseline":  true
+    },
+    {
+        "id":  "CYYR",
+        "wmo":  "71816",
+        "igra":  "CAM00071816",
+        "lat":  53.3167,
+        "lon":  -60.4167,
+        "elevM":  48.8,
+        "name":  "GOOSE A; NFLD",
+        "baseline":  true
+    },
+    {
+        "id":  "70414",
+        "wmo":  "70414",
+        "igra":  "USM00070414",
+        "lat":  52.7167,
+        "lon":  174.1,
+        "elevM":  29,
+        "name":  "SHEMYA AFB [AK]",
+        "baseline":  true
+    },
+    {
+        "id":  "CYPL",
+        "wmo":  "71845",
+        "igra":  "CAM00071845",
+        "lat":  51.4464,
+        "lon":  -90.2142,
+        "elevM":  386.2,
+        "name":  "PICKLE LAKE A; ONT",
+        "baseline":  true
+    },
+    {
+        "id":  "71109",
+        "wmo":  "71109",
+        "igra":  "CAM00071109",
+        "lat":  50.6806,
+        "lon":  -127.3666,
+        "elevM":  21.6,
+        "name":  "PORT HARDY A; BC",
+        "baseline":  true
+    },
+    {
+        "id":  "CYQR",
+        "wmo":  "71863",
+        "igra":  "",
+        "lat":  50.43,
+        "lon":  -104.67,
+        "elevM":  null,
+        "name":  "Regina",
+        "baseline":  false
+    },
+    {
+        "id":  "73033",
+        "wmo":  "73033",
+        "igra":  "CAM00073033",
+        "lat":  50.2393,
+        "lon":  -119.2898,
+        "elevM":  564,
+        "name":  "VERNON UA; BC",
+        "baseline":  true
+    },
+    {
+        "id":  "71811",
+        "wmo":  "71811",
+        "igra":  "CAM00071811",
+        "lat":  50.2167,
+        "lon":  -66.25,
+        "elevM":  53.1,
+        "name":  "SEPT-ILES UA; QUE",
+        "baseline":  true
+    },
+    {
+        "id":  "CYWG",
+        "wmo":  "71843",
+        "igra":  "CAM00071843",
+        "lat":  49.8,
+        "lon":  -97.1333,
+        "elevM":  227,
+        "name":  "Winnipeg",
+        "baseline":  true
+    },
+    {
+        "id":  "73111",
+        "wmo":  "73111",
+        "igra":  "CAM00073111",
+        "lat":  49.405,
+        "lon":  -82.4428,
+        "elevM":  225,
+        "name":  "KAPUSKASING UA; ON",
+        "baseline":  true
+    },
+    {
+        "id":  "KINL",
+        "wmo":  "72747",
+        "igra":  "USM00072747",
+        "lat":  48.5647,
+        "lon":  -93.3975,
+        "elevM":  357.3,
+        "name":  "INT.FALLS/FALLS INT. MN. [MN]",
+        "baseline":  true
+    },
+    {
+        "id":  "KHVR",
+        "wmo":  "72777",
+        "igra":  "",
+        "lat":  48.54,
+        "lon":  -109.76,
+        "elevM":  null,
+        "name":  "Havre",
+        "baseline":  false
+    },
+    {
+        "id":  "CYJT",
+        "wmo":  "71815",
+        "igra":  "CAM00071815",
+        "lat":  48.5333,
+        "lon":  -58.55,
+        "elevM":  24.7,
+        "name":  "STEPHENVILLE A; NFLD",
+        "baseline":  true
+    },
+    {
+        "id":  "72768",
+        "wmo":  "72768",
+        "igra":  "USM00072768",
+        "lat":  48.2067,
+        "lon":  -106.6255,
+        "elevM":  693.1,
+        "name":  "GLASGOW/INT.; MT. [MT]",
+        "baseline":  true
+    },
+    {
+        "id":  "KUIL",
+        "wmo":  "72797",
+        "igra":  "USM00072797",
+        "lat":  47.9339,
+        "lon":  -124.5602,
+        "elevM":  56.8,
+        "name":  "QUILLAYUTE; WA. [WA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KFGF",
+        "wmo":  "72757",
+        "igra":  "",
+        "lat":  47.93,
+        "lon":  -97.08,
+        "elevM":  null,
+        "name":  "Grand Forks",
+        "baseline":  false
+    },
+    {
+        "id":  "72786",
+        "wmo":  "72786",
+        "igra":  "USM00072786",
+        "lat":  47.6806,
+        "lon":  -117.6266,
+        "elevM":  729.1,
+        "name":  "SPOKANE; WA. [WA]",
+        "baseline":  true
+    },
+    {
+        "id":  "71802",
+        "wmo":  "71802",
+        "igra":  "CAM00071802",
+        "lat":  47.5167,
+        "lon":  -52.7833,
+        "elevM":  112.4,
+        "name":  "ST JOHN\u0027S WEST UA; NFLD",
+        "baseline":  true
+    },
+    {
+        "id":  "72776",
+        "wmo":  "72776",
+        "igra":  "USM00072776",
+        "lat":  47.4614,
+        "lon":  -111.3847,
+        "elevM":  1132,
+        "name":  "GREAT FALLS; MT. [MT]",
+        "baseline":  true
+    },
+    {
+        "id":  "KCAR",
+        "wmo":  "72712",
+        "igra":  "USM00072712",
+        "lat":  46.8683,
+        "lon":  -68.0136,
+        "elevM":  191,
+        "name":  "CARIBOU/MUN.; ME. [ME]",
+        "baseline":  true
+    },
+    {
+        "id":  "KBIS",
+        "wmo":  "72764",
+        "igra":  "USM00072764",
+        "lat":  46.7717,
+        "lon":  -100.7594,
+        "elevM":  506.2,
+        "name":  "BISMARCK/MUN.; ND. [ND]",
+        "baseline":  true
+    },
+    {
+        "id":  "71722",
+        "wmo":  "71722",
+        "igra":  "CAM00071722",
+        "lat":  46.3019,
+        "lon":  -76.0061,
+        "elevM":  188.6,
+        "name":  "MANIWAKI UA; QUE",
+        "baseline":  true
+    },
+    {
+        "id":  "71701",
+        "wmo":  "71701",
+        "igra":  "CAM00071701",
+        "lat":  45.8333,
+        "lon":  -66.4333,
+        "elevM":  50.6,
+        "name":  "GAGETOWN A; NB",
+        "baseline":  true
+    },
+    {
+        "id":  "72659",
+        "wmo":  "72659",
+        "igra":  "USM00072659",
+        "lat":  45.4556,
+        "lon":  -98.4133,
+        "elevM":  398.4,
+        "name":  "ABERDEEN/REG.; SD. [SD]",
+        "baseline":  true
+    },
+    {
+        "id":  "KSLE",
+        "wmo":  "72694",
+        "igra":  "USM00072694",
+        "lat":  44.9092,
+        "lon":  -123.0083,
+        "elevM":  62.4,
+        "name":  "SALEM/MCNARY; OR. [OR]",
+        "baseline":  true
+    },
+    {
+        "id":  "KAPX",
+        "wmo":  "72634",
+        "igra":  "USM00072634",
+        "lat":  44.9075,
+        "lon":  -84.7189,
+        "elevM":  447.7,
+        "name":  "GAYLORD; MI. [MI]",
+        "baseline":  true
+    },
+    {
+        "id":  "KMPX",
+        "wmo":  "72649",
+        "igra":  "USM00072649",
+        "lat":  44.8497,
+        "lon":  -93.5647,
+        "elevM":  290.2,
+        "name":  "CHANHASSEN; MN. [MN]",
+        "baseline":  true
+    },
+    {
+        "id":  "KGRB",
+        "wmo":  "72645",
+        "igra":  "USM00072645",
+        "lat":  44.4986,
+        "lon":  -88.1119,
+        "elevM":  209.3,
+        "name":  "GREEN BAY/A.-STRAUBEL; WI. [WI]",
+        "baseline":  true
+    },
+    {
+        "id":  "KUNR",
+        "wmo":  "72662",
+        "igra":  "USM00072662",
+        "lat":  44.073,
+        "lon":  -103.2102,
+        "elevM":  1030.6,
+        "name":  "RAPID CITY WFO; SD. [SD]",
+        "baseline":  true
+    },
+    {
+        "id":  "KGYX",
+        "wmo":  "74389",
+        "igra":  "USM00074389",
+        "lat":  43.8925,
+        "lon":  -70.2572,
+        "elevM":  124.5,
+        "name":  "GRAY; ME. [ME]",
+        "baseline":  true
+    },
+    {
+        "id":  "CYQI",
+        "wmo":  "71603",
+        "igra":  "CAM00071603",
+        "lat":  43.8308,
+        "lon":  -66.0886,
+        "elevM":  43,
+        "name":  "YARMOUTH A; NS",
+        "baseline":  true
+    },
+    {
+        "id":  "KBOI",
+        "wmo":  "72681",
+        "igra":  "USM00072681",
+        "lat":  43.5672,
+        "lon":  -116.2113,
+        "elevM":  873.1,
+        "name":  "BOISE/MUN.; ID. [ID]",
+        "baseline":  true
+    },
+    {
+        "id":  "72672",
+        "wmo":  "72672",
+        "igra":  "USM00072672",
+        "lat":  43.0647,
+        "lon":  -108.4766,
+        "elevM":  1699,
+        "name":  "RIVERTON; WY. [WY]",
+        "baseline":  true
+    },
+    {
+        "id":  "KBUF",
+        "wmo":  "72528",
+        "igra":  "USM00072528",
+        "lat":  42.9411,
+        "lon":  -78.7189,
+        "elevM":  218.4,
+        "name":  "BUFFALO/GREATER BUFFALO INT.; [NY]",
+        "baseline":  true
+    },
+    {
+        "id":  "KALB",
+        "wmo":  "72518",
+        "igra":  "USM00072518",
+        "lat":  42.75,
+        "lon":  -73.8,
+        "elevM":  88,
+        "name":  "ALBANY COUNTY AIRPORT; NY. [NY]",
+        "baseline":  true
+    },
+    {
+        "id":  "KDTX",
+        "wmo":  "72632",
+        "igra":  "USM00072632",
+        "lat":  42.6989,
+        "lon":  -83.4714,
+        "elevM":  330.2,
+        "name":  "WHITE LAKE; MI. [MI]",
+        "baseline":  true
+    },
+    {
+        "id":  "KMFR",
+        "wmo":  "72597",
+        "igra":  "USM00072597",
+        "lat":  42.3769,
+        "lon":  -122.8822,
+        "elevM":  398.2,
+        "name":  "MEDFORD/MEDFORD-JACKSON COUNTY [OR]",
+        "baseline":  true
+    },
+    {
+        "id":  "KDMX",
+        "wmo":  "72546",
+        "igra":  "",
+        "lat":  41.73,
+        "lon":  -93.72,
+        "elevM":  null,
+        "name":  "Des Moines",
+        "baseline":  false
+    },
+    {
+        "id":  "KDVN",
+        "wmo":  "74455",
+        "igra":  "USM00074455",
+        "lat":  41.6114,
+        "lon":  -90.5817,
+        "elevM":  230.5,
+        "name":  "QUAD CITY; IA. [IA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KIWX",
+        "wmo":  "72533",
+        "igra":  "",
+        "lat":  41.36,
+        "lon":  -85.7,
+        "elevM":  null,
+        "name":  "North Webster",
+        "baseline":  false
+    },
+    {
+        "id":  "KOAX",
+        "wmo":  "72558",
+        "igra":  "USM00072558",
+        "lat":  41.32,
+        "lon":  -96.3669,
+        "elevM":  351.5,
+        "name":  "VALLEY; NE. [NE]",
+        "baseline":  true
+    },
+    {
+        "id":  "KLBF",
+        "wmo":  "72562",
+        "igra":  "USM00072562",
+        "lat":  41.1328,
+        "lon":  -100.7,
+        "elevM":  848.8,
+        "name":  "NORTH PLATTE/LEE BIRD; NE. [NE]",
+        "baseline":  true
+    },
+    {
+        "id":  "KOKX",
+        "wmo":  "72501",
+        "igra":  "USM00072501",
+        "lat":  40.865,
+        "lon":  -72.862799999999993,
+        "elevM":  19.6,
+        "name":  "UPTON; NY. [NY]",
+        "baseline":  true
+    },
+    {
+        "id":  "KLKN",
+        "wmo":  "72582",
+        "igra":  "USM00072582",
+        "lat":  40.86,
+        "lon":  -115.7422,
+        "elevM":  1593,
+        "name":  "ELKO; NV. [NV]",
+        "baseline":  true
+    },
+    {
+        "id":  "KSLC",
+        "wmo":  "72572",
+        "igra":  "USM00072572",
+        "lat":  40.7722,
+        "lon":  -111.9552,
+        "elevM":  1289,
+        "name":  "SALT LAKE CITY/INTNL UT. [UT]",
+        "baseline":  true
+    },
+    {
+        "id":  "KPIT",
+        "wmo":  "72520",
+        "igra":  "USM00072520",
+        "lat":  40.5317,
+        "lon":  -80.2172,
+        "elevM":  360.5,
+        "name":  "PITTSBURGH; PA. [PA]",
+        "baseline":  true
+    },
+    {
+        "id":  "74003",
+        "wmo":  "74003",
+        "igra":  "USM00074003",
+        "lat":  40.1667,
+        "lon":  -112.9333,
+        "elevM":  1325,
+        "name":  "DUGWAY PRVGR [UT]",
+        "baseline":  true
+    },
+    {
+        "id":  "KILX",
+        "wmo":  "74560",
+        "igra":  "USM00074560",
+        "lat":  40.1517,
+        "lon":  -89.3383,
+        "elevM":  179.2,
+        "name":  "LINCOLN; IL. [IL]",
+        "baseline":  true
+    },
+    {
+        "id":  "KREV",
+        "wmo":  "72489",
+        "igra":  "USM00072489",
+        "lat":  39.5681,
+        "lon":  -119.7966,
+        "elevM":  1518,
+        "name":  "RENO; NV. [NV]",
+        "baseline":  true
+    },
+    {
+        "id":  "72426",
+        "wmo":  "72426",
+        "igra":  "USM00072426",
+        "lat":  39.4214,
+        "lon":  -83.8217,
+        "elevM":  322.7,
+        "name":  "WILMINGTON; OH. [OH]",
+        "baseline":  true
+    },
+    {
+        "id":  "KGJT",
+        "wmo":  "72476",
+        "igra":  "USM00072476",
+        "lat":  39.12,
+        "lon":  -108.525,
+        "elevM":  1474,
+        "name":  "GRAND JUNCTION/WALKER FIELD; C [CO]",
+        "baseline":  true
+    },
+    {
+        "id":  "KTOP",
+        "wmo":  "72456",
+        "igra":  "USM00072456",
+        "lat":  39.0722,
+        "lon":  -95.6305,
+        "elevM":  268.1,
+        "name":  "TOPEKA/MUN.; KS. [KS]",
+        "baseline":  true
+    },
+    {
+        "id":  "KIAD",
+        "wmo":  "72403",
+        "igra":  "USM00072403",
+        "lat":  38.9767,
+        "lon":  -77.4858,
+        "elevM":  88.4,
+        "name":  "STERLING; VA. [VA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KLSX",
+        "wmo":  "72434",
+        "igra":  "",
+        "lat":  38.7,
+        "lon":  -90.68,
+        "elevM":  null,
+        "name":  "St. Louis",
+        "baseline":  false
+    },
+    {
+        "id":  "KDDC",
+        "wmo":  "72451",
+        "igra":  "USM00072451",
+        "lat":  37.7614,
+        "lon":  -99.9686,
+        "elevM":  786.4,
+        "name":  "DODGE CITY/MUN.; KS. [KS]",
+        "baseline":  true
+    },
+    {
+        "id":  "KOAK",
+        "wmo":  "72493",
+        "igra":  "USM00072493",
+        "lat":  37.7444,
+        "lon":  -122.2236,
+        "elevM":  2.5,
+        "name":  "OAKLAND/METROP. OAKLAND INT.; [CA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KSGF",
+        "wmo":  "72440",
+        "igra":  "USM00072440",
+        "lat":  37.2347,
+        "lon":  -93.4014,
+        "elevM":  391.1,
+        "name":  "SPRINGFIELD/MUN.; MO. [MO]",
+        "baseline":  true
+    },
+    {
+        "id":  "KRNK",
+        "wmo":  "72318",
+        "igra":  "USM00072318",
+        "lat":  37.2039,
+        "lon":  -80.4142,
+        "elevM":  639.4,
+        "name":  "BLACKSBURG; VA. [VA]",
+        "baseline":  true
+    },
+    {
+        "id":  "74646",
+        "wmo":  "74646",
+        "igra":  "USM00074646",
+        "lat":  36.6,
+        "lon":  -97.5,
+        "elevM":  306,
+        "name":  "LAMONT [OK]",
+        "baseline":  true
+    },
+    {
+        "id":  "KBNA",
+        "wmo":  "72327",
+        "igra":  "USM00072327",
+        "lat":  36.2333,
+        "lon":  -86.55,
+        "elevM":  180,
+        "name":  "NASHVILLE/METROPOLITAN; TN. [TN]",
+        "baseline":  true
+    },
+    {
+        "id":  "KGSO",
+        "wmo":  "72317",
+        "igra":  "USM00072317",
+        "lat":  36.0981,
+        "lon":  -79.9428,
+        "elevM":  276.5,
+        "name":  "GREENSBORO/G.-HIGH PT.; NC. [NC]",
+        "baseline":  true
+    },
+    {
+        "id":  "72388",
+        "wmo":  "72388",
+        "igra":  "USM00072388",
+        "lat":  36.0471,
+        "lon":  -115.1846,
+        "elevM":  697.2,
+        "name":  "LAS VEGAS [NV]",
+        "baseline":  true
+    },
+    {
+        "id":  "74612",
+        "wmo":  "74612",
+        "igra":  "USM00074612",
+        "lat":  35.6833,
+        "lon":  -117.6833,
+        "elevM":  696,
+        "name":  "CHINA LAKE; NAF; CA. [CA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KNQA",
+        "wmo":  "72334",
+        "igra":  "",
+        "lat":  35.35,
+        "lon":  -89.87,
+        "elevM":  null,
+        "name":  "Memphis",
+        "baseline":  false
+    },
+    {
+        "id":  "KAMA",
+        "wmo":  "72363",
+        "igra":  "USM00072363",
+        "lat":  35.2331,
+        "lon":  -101.7091,
+        "elevM":  1095,
+        "name":  "AMARILLO/INTL.; TX. [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "KFGZ",
+        "wmo":  "72376",
+        "igra":  "USM00072376",
+        "lat":  35.23,
+        "lon":  -111.8216,
+        "elevM":  2179,
+        "name":  "FLAGSTAFF; AZ [AZ]",
+        "baseline":  true
+    },
+    {
+        "id":  "KOUN",
+        "wmo":  "72357",
+        "igra":  "USM00072357",
+        "lat":  35.1808,
+        "lon":  -97.4378,
+        "elevM":  344.9,
+        "name":  "NORMAN/MAX WESTHEIMER A; OK. [OK]",
+        "baseline":  true
+    },
+    {
+        "id":  "KABQ",
+        "wmo":  "72365",
+        "igra":  "USM00072365",
+        "lat":  35.0378,
+        "lon":  -106.6219,
+        "elevM":  1619,
+        "name":  "ALBUQUERQUE/INT.; NM. [NM]",
+        "baseline":  true
+    },
+    {
+        "id":  "72381",
+        "wmo":  "72381",
+        "igra":  "USM00072381",
+        "lat":  34.9167,
+        "lon":  -117.9,
+        "elevM":  705,
+        "name":  "EDWARDS AFB; CA. [CA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KLZK",
+        "wmo":  "72340",
+        "igra":  "USM00072340",
+        "lat":  34.835,
+        "lon":  -92.2594,
+        "elevM":  173.2,
+        "name":  "LITTLE ROCK/ADAMS FLD; AR. [AR]",
+        "baseline":  true
+    },
+    {
+        "id":  "KMHX",
+        "wmo":  "72305",
+        "igra":  "USM00072305",
+        "lat":  34.7761,
+        "lon":  -76.8767,
+        "elevM":  11,
+        "name":  "NEWPORT; NC. [NC]",
+        "baseline":  true
+    },
+    {
+        "id":  "KVBG",
+        "wmo":  "72393",
+        "igra":  "USM00072393",
+        "lat":  34.75,
+        "lon":  -120.5666,
+        "elevM":  121,
+        "name":  "VANDENBERG AFB; CA. (72393-0) [CA]",
+        "baseline":  true
+    },
+    {
+        "id":  "74626",
+        "wmo":  "74626",
+        "igra":  "USM00074626",
+        "lat":  33.45,
+        "lon":  -111.95,
+        "elevM":  386,
+        "name":  "WFO PHOENIX; [AZ]",
+        "baseline":  true
+    },
+    {
+        "id":  "KFFC",
+        "wmo":  "72215",
+        "igra":  "USM00072215",
+        "lat":  33.3558,
+        "lon":  -84.5672,
+        "elevM":  244.9,
+        "name":  "PEACHTREE CITY; GA. [GA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KBMX",
+        "wmo":  "72230",
+        "igra":  "USM00072230",
+        "lat":  33.1789,
+        "lon":  -86.7822,
+        "elevM":  174,
+        "name":  "BIRMINGHAM; AL [AL]",
+        "baseline":  true
+    },
+    {
+        "id":  "KCHS",
+        "wmo":  "72208",
+        "igra":  "USM00072208",
+        "lat":  32.895,
+        "lon":  -80.0275,
+        "elevM":  13.3,
+        "name":  "CHARLESTON/MUN.; SC. [SC]",
+        "baseline":  true
+    },
+    {
+        "id":  "74005",
+        "wmo":  "74005",
+        "igra":  "USM00074005",
+        "lat":  32.8636,
+        "lon":  -114.033,
+        "elevM":  231,
+        "name":  "YUMA PRVGR [AZ]",
+        "baseline":  true
+    },
+    {
+        "id":  "74004",
+        "wmo":  "74004",
+        "igra":  "USM00074004",
+        "lat":  32.8356,
+        "lon":  -114.4,
+        "elevM":  231,
+        "name":  "YUMA PROVING GROUNDS AZ [AZ]",
+        "baseline":  true
+    },
+    {
+        "id":  "KFWD",
+        "wmo":  "72249",
+        "igra":  "USM00072249",
+        "lat":  32.835,
+        "lon":  -97.2986,
+        "elevM":  195.2,
+        "name":  "FORT WORTH; TX. [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "KNKX",
+        "wmo":  "72293",
+        "igra":  "USM00072293",
+        "lat":  32.8333,
+        "lon":  -117.1166,
+        "elevM":  133.5,
+        "name":  "SAN DIEGO/MIRAMAR; NAS; CA. [CA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KSHV",
+        "wmo":  "72248",
+        "igra":  "USM00072248",
+        "lat":  32.4511,
+        "lon":  -93.8414,
+        "elevM":  85.1,
+        "name":  "SHREVEPORT/REG.; LA. [LA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KJAN",
+        "wmo":  "72235",
+        "igra":  "USM00072235",
+        "lat":  32.3189,
+        "lon":  -90.08,
+        "elevM":  90.7,
+        "name":  "JACKSON/ALLEN C. THOMPSON FIEL [MS]",
+        "baseline":  true
+    },
+    {
+        "id":  "KTUS",
+        "wmo":  "72274",
+        "igra":  "USM00072274",
+        "lat":  32.2278,
+        "lon":  -110.9558,
+        "elevM":  751.4,
+        "name":  "TUCSON; AZ [AZ]",
+        "baseline":  true
+    },
+    {
+        "id":  "KMAF",
+        "wmo":  "72265",
+        "igra":  "USM00072265",
+        "lat":  31.9425,
+        "lon":  -102.1891,
+        "elevM":  874.9,
+        "name":  "MIDLAND/MIDLAND REG. AIRTERM [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "KEPZ",
+        "wmo":  "72364",
+        "igra":  "USM00072364",
+        "lat":  31.8728,
+        "lon":  -106.698,
+        "elevM":  1254,
+        "name":  "SANTA TERESA; NM. [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "KCLL",
+        "wmo":  "",
+        "igra":  "",
+        "lat":  30.59,
+        "lon":  -96.36,
+        "elevM":  null,
+        "name":  "College Station",
+        "baseline":  false
+    },
+    {
+        "id":  "KJAX",
+        "wmo":  "72206",
+        "igra":  "USM00072206",
+        "lat":  30.4839,
+        "lon":  -81.7011,
+        "elevM":  10.1,
+        "name":  "JACKSONVILLE/INTNL.; FL. [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "72221",
+        "wmo":  "72221",
+        "igra":  "USM00072221",
+        "lat":  30.4833,
+        "lon":  -86.5167,
+        "elevM":  29,
+        "name":  "VALPARAISO/EGLIN AFB; FL. [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "KTLH",
+        "wmo":  "72214",
+        "igra":  "",
+        "lat":  30.38,
+        "lon":  -84.37,
+        "elevM":  null,
+        "name":  "Tallahassee",
+        "baseline":  false
+    },
+    {
+        "id":  "KLIX",
+        "wmo":  "72233",
+        "igra":  "USM00072233",
+        "lat":  30.3369,
+        "lon":  -89.825,
+        "elevM":  9.9,
+        "name":  "SLIDELL/MUN. LA [LA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KLCH",
+        "wmo":  "72240",
+        "igra":  "USM00072240",
+        "lat":  30.1253,
+        "lon":  -93.2161,
+        "elevM":  4.8,
+        "name":  "LAKE CHARLES/MUN.; LA. [LA]",
+        "baseline":  true
+    },
+    {
+        "id":  "KDRT",
+        "wmo":  "72261",
+        "igra":  "USM00072261",
+        "lat":  29.3744,
+        "lon":  -100.9183,
+        "elevM":  314,
+        "name":  "DEL RIO/INT.; TX. [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "74794",
+        "wmo":  "74794",
+        "igra":  "USM00074794",
+        "lat":  28.4667,
+        "lon":  -80.55,
+        "elevM":  3,
+        "name":  "CAPE KENNEDY [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "76256",
+        "wmo":  "76256",
+        "igra":  "MXM00076256",
+        "lat":  27.9573,
+        "lon":  -110.7973,
+        "elevM":  10,
+        "name":  "EMPALME; SON.",
+        "baseline":  true
+    },
+    {
+        "id":  "KCRP",
+        "wmo":  "72251",
+        "igra":  "USM00072251",
+        "lat":  27.7789,
+        "lon":  -97.5055,
+        "elevM":  14.8,
+        "name":  "CORPUS CHRISTI/INT.; TX. [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "KTBW",
+        "wmo":  "72210",
+        "igra":  "USM00072210",
+        "lat":  27.7053,
+        "lon":  -82.4006,
+        "elevM":  13.1,
+        "name":  "TAMPA BAY AREA; FL. [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "KBRO",
+        "wmo":  "72250",
+        "igra":  "USM00072250",
+        "lat":  25.9167,
+        "lon":  -97.4192,
+        "elevM":  7.1,
+        "name":  "BROWNSVILLE/INT.; TX [TX]",
+        "baseline":  true
+    },
+    {
+        "id":  "MMMY",
+        "wmo":  "76394",
+        "igra":  "MXM00076394",
+        "lat":  25.8667,
+        "lon":  -100.2333,
+        "elevM":  448,
+        "name":  "AEROP.INTERNACIONAL MONTERREY;",
+        "baseline":  true
+    },
+    {
+        "id":  "KMFL",
+        "wmo":  "72202",
+        "igra":  "USM00072202",
+        "lat":  25.75,
+        "lon":  -80.3833,
+        "elevM":  4,
+        "name":  "MIAMI; FL (72202-0) [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "KEYW",
+        "wmo":  "72201",
+        "igra":  "USM00072201",
+        "lat":  24.5531,
+        "lon":  -81.7886,
+        "elevM":  13.4,
+        "name":  "KEY WEST/INT.; FL [FL]",
+        "baseline":  true
+    },
+    {
+        "id":  "MMLP",
+        "wmo":  "76405",
+        "igra":  "MXM00076405",
+        "lat":  24.1288,
+        "lon":  -110.3206,
+        "elevM":  22,
+        "name":  "LA PAZ; BCS",
+        "baseline":  true
+    },
+    {
+        "id":  "76458",
+        "wmo":  "76458",
+        "igra":  "MXM00076458",
+        "lat":  23.2173,
+        "lon":  -106.4111,
+        "elevM":  3,
+        "name":  "COLONIA JUAN CARRASCO MAZATLAN",
+        "baseline":  true
+    },
+    {
+        "id":  "76526",
+        "wmo":  "76526",
+        "igra":  "MXM00076526",
+        "lat":  22.7465,
+        "lon":  -102.5066,
+        "elevM":  2265,
+        "name":  "ZACATECAS SONDEO",
+        "baseline":  true
+    },
+    {
+        "id":  "91165",
+        "wmo":  "91165",
+        "igra":  "USM00091165",
+        "lat":  21.9933,
+        "lon":  -159.3466,
+        "elevM":  32.3,
+        "name":  "LIHUE; KAUAI; HAWAII [HI]",
+        "baseline":  true
+    },
+    {
+        "id":  "MMUN",
+        "wmo":  "76595",
+        "igra":  "MXM00076595",
+        "lat":  21.029,
+        "lon":  -86.8521,
+        "elevM":  9,
+        "name":  "CANCUN",
+        "baseline":  true
+    },
+    {
+        "id":  "MMMD",
+        "wmo":  "76644",
+        "igra":  "MXM00076644",
+        "lat":  20.9468,
+        "lon":  -89.6521,
+        "elevM":  10,
+        "name":  "AEROP.INTERNACIONAL MERIDA; YU",
+        "baseline":  true
+    },
+    {
+        "id":  "MMGL",
+        "wmo":  "76612",
+        "igra":  "MXM00076612",
+        "lat":  20.7065,
+        "lon":  -103.3923,
+        "elevM":  1554,
+        "name":  "GUADALAJARA; JAL.",
+        "baseline":  true
+    },
+    {
+        "id":  "91285",
+        "wmo":  "91285",
+        "igra":  "USM00091285",
+        "lat":  19.7183,
+        "lon":  -155.0583,
+        "elevM":  11,
+        "name":  "HILO HI; HAWAII [HI]",
+        "baseline":  true
+    },
+    {
+        "id":  "MMMX",
+        "wmo":  "76679",
+        "igra":  "MXM00076679",
+        "lat":  19.4037,
+        "lon":  -99.1966,
+        "elevM":  2337,
+        "name":  "AEROP. INTERNACIONAL MEXICO; D",
+        "baseline":  true
+    },
+    {
+        "id":  "MMVR",
+        "wmo":  "76692",
+        "igra":  "MXM00076692",
+        "lat":  19.143,
+        "lon":  -96.1113,
+        "elevM":  11,
+        "name":  "HACIENDA YLANG YLANG VERACRUZ;",
+        "baseline":  true
+    },
+    {
+        "id":  "76654",
+        "wmo":  "76654",
+        "igra":  "MXM00076654",
+        "lat":  19.0445,
+        "lon":  -104.3185,
+        "elevM":  2,
+        "name":  "MANZANILLO; COL.",
+        "baseline":  true
+    },
+    {
+        "id":  "76743",
+        "wmo":  "76743",
+        "igra":  "MXM00076743",
+        "lat":  17.981,
+        "lon":  -92.9215,
+        "elevM":  6,
+        "name":  "VILLAHERMOSA; TAB.",
+        "baseline":  true
+    },
+    {
+        "id":  "76805",
+        "wmo":  "76805",
+        "igra":  "MXM00076805",
+        "lat":  16.7629,
+        "lon":  -99.7494,
+        "elevM":  3,
+        "name":  "ACAPULCO; GRO.",
+        "baseline":  true
+    },
+    {
+        "id":  "76903",
+        "wmo":  "76903",
+        "igra":  "MXM00076903",
+        "lat":  14.8872,
+        "lon":  -92.2964,
+        "elevM":  114,
+        "name":  "TAPACHULA; CHIS",
+        "baseline":  true
+    }
+]

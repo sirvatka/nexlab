@@ -21,7 +21,7 @@ function send(res, status, body, contentType = "text/plain; charset=utf-8") {
   res.end(body);
 }
 
-const upperAirStations = [
+const upperAirStationsLegacy = [
   ["KUIL", "72797", "Quillayute", 47.95, -124.55], ["KSLE", "72694", "Salem", 44.92, -123.00],
   ["KMFR", "72597", "Medford", 42.37, -122.87], ["KOAK", "72493", "Oakland", 37.73, -122.22],
   ["KVBG", "72393", "Vandenberg", 34.73, -120.58], ["KNKX", "72293", "San Diego", 32.85, -117.12],
@@ -76,6 +76,18 @@ const upperAirStations = [
   ["MMMX", "76679", "Mexico City", 19.43, -99.07], ["MMVR", "76692", "Veracruz", 19.15, -96.18],
   ["MMMD", "76644", "Merida", 20.94, -89.66], ["MMUN", "76595", "Cancun", 21.04, -86.87]
 ];
+
+const upperAirStations = JSON.parse(fs.readFileSync(path.join(root, "upper-air-stations.json"), "utf8").replace(/^\uFEFF/, ""))
+  .map((station) => [
+    station.id,
+    station.wmo || "",
+    station.name,
+    station.lat,
+    station.lon,
+    station.elevM,
+    station.igra || "",
+    station.baseline !== false
+  ]);
 
 function formatRunDate(date) {
   return [
@@ -448,6 +460,20 @@ async function proxyTracker(res) {
   }
 }
 
+function proxyUpperStations(res) {
+  const stations = upperAirStations.map(([id, wmo, name, lat, lon, elevM, igra, baseline]) => ({
+    id,
+    wmo,
+    igra,
+    lat,
+    lon,
+    elevM,
+    name,
+    baseline
+  }));
+  send(res, 200, JSON.stringify({ count: stations.length, stations }, null, 2), mimeTypes[".json"]);
+}
+
 function serveStatic(url, res) {
   const relative = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
   const filePath = path.resolve(root, relative);
@@ -481,6 +507,10 @@ http.createServer(async (req, res) => {
   }
   if (url.pathname === "/api/upper-analysis") {
     await proxyUpperAnalysis(url, res);
+    return;
+  }
+  if (url.pathname === "/api/upper-stations") {
+    proxyUpperStations(res);
     return;
   }
   serveStatic(url, res);

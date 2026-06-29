@@ -43,19 +43,27 @@ const upperAirStations = [
   ["DDC", "72451", "Dodge City", 37.76, -99.97],
   ["OUN", "72357", "Norman", 35.23, -97.46],
   ["FWD", "72249", "Fort Worth", 32.83, -97.30],
+  ["DRT", "72261", "Del Rio", 29.37, -100.92],
+  ["BRO", "72250", "Brownsville", 25.90, -97.43],
   ["CRP", "72251", "Corpus Christi", 27.77, -97.50],
+  ["SHV", "72248", "Shreveport", 32.45, -93.83],
   ["LCH", "72240", "Lake Charles", 30.12, -93.22],
   ["LIX", "72233", "Slidell", 30.34, -89.82],
   ["JAN", "72235", "Jackson", 32.32, -90.08],
   ["BMX", "72230", "Birmingham", 33.16, -86.77],
   ["FFC", "72215", "Peachtree City", 33.36, -84.56],
+  ["TLH", "72214", "Tallahassee", 30.38, -84.37],
   ["TBW", "72210", "Tampa Bay", 27.70, -82.40],
   ["MFL", "72202", "Miami", 25.75, -80.38],
+  ["EYW", "72201", "Key West", 24.55, -81.78],
   ["JAX", "72206", "Jacksonville", 30.49, -81.70],
   ["CHS", "72208", "Charleston", 32.90, -80.03],
+  ["MHX", "72305", "Newport", 34.78, -76.88],
   ["GSO", "72317", "Greensboro", 36.08, -79.95],
   ["RNK", "72318", "Blacksburg", 37.20, -80.41],
+  ["WAL", "72402", "Wallops Island", 37.93, -75.48],
   ["IAD", "72403", "Sterling", 38.98, -77.47],
+  ["GYX", "74389", "Gray", 43.89, -70.26],
   ["PIT", "72520", "Pittsburgh", 40.53, -80.22],
   ["BUF", "72528", "Buffalo", 42.94, -78.74],
   ["ALB", "72518", "Albany", 42.75, -73.80],
@@ -107,7 +115,17 @@ function parseUpperRows(html) {
     .filter((line) => /^\d+\s+/.test(line))
     .map((line) => {
       const parts = line.split(/\s+/).map(Number);
-      if (parts.length < 8) return null;
+      if (parts.length < 7) return null;
+      if (parts.length === 7 && parts[1] >= 100 && parts[1] <= 1100) {
+        return {
+          pres: parts[1],
+          height: parts[2],
+          temp: Number.isFinite(parts[3]) ? parts[3] : null,
+          dewp: null,
+          wdir: Number.isFinite(parts[4]) ? parts[4] : null,
+          wspd: Number.isFinite(parts[5]) ? parts[5] : null
+        };
+      }
       const hasLevColumn = parts.length >= 10 && parts[1] >= 100 && parts[1] <= 1100;
       const offset = hasLevColumn ? 1 : 0;
       const row = {
@@ -163,6 +181,20 @@ async function fetchTextWithTimeout(url, timeoutMs = 6500) {
   }
 }
 
+async function mapLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
+  async function run() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await worker(items[index], index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
+  return results;
+}
+
 async function loadObservedUpperStation(station, level) {
   const [id, number, name, lat, lon] = station;
   try {
@@ -190,7 +222,7 @@ async function loadObservedUpperStation(station, level) {
 async function loadForecastUpperStation(station, level, run, hour = 1) {
   const [id, number, name, lat, lon] = station;
   try {
-    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour));
+    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour), 15000);
     const rows = parseUpperRows(text);
     const data = interpolateLevel(rows, level);
     const valid = text.match(/Date:\s*([^\n\r]+)/i);
@@ -224,15 +256,26 @@ async function proxyUpperAnalysis(url, res) {
   try {
     const forecastRun = String(url.searchParams.get("run") || latest11zRun()).replace(/[^0-9]/g, "").slice(0, 10);
     const forecastHour = Number(url.searchParams.get("hour") || 1);
-    const observed = await Promise.all(upperAirStations.map((station) => loadObservedUpperStation(station, level)));
-    const stations = await Promise.all(upperAirStations.map((station, index) => {
-      if (observed[index]) return Promise.resolve(observed[index]);
-      return loadForecastUpperStation(station, level, forecastRun, forecastHour);
-    }));
+    const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "model").toLowerCase();
+    let stations;
+    if (sourceMode === "observed") {
+      const observed = await mapLimit(upperAirStations, 8, (station) => loadObservedUpperStation(station, level));
+      stations = await mapLimit(upperAirStations, 5, (station, index) => {
+        if (observed[index]) return Promise.resolve(observed[index]);
+        return loadForecastUpperStation(station, level, forecastRun, forecastHour);
+      });
+    } else {
+      const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
+      stations = await mapLimit(upperAirStations, 8, (station, index) => {
+        if (forecast[index]) return Promise.resolve(forecast[index]);
+        return loadObservedUpperStation(station, level);
+      });
+    }
     const validStations = stations.filter(Boolean);
     const validTime = validStations[0]?.validTime || `COD HRRR ${forecastRun} F${forecastHour}`;
     send(res, 200, JSON.stringify({
       level,
+      sourceMode,
       forecastRun,
       forecastHour,
       validTime,

@@ -641,7 +641,7 @@ function renderProduct(id, options = {}) {
   }
 
   if (product.type === "upper-air") {
-    viewerStatus.textContent = "Raw 500mb observed station plots with forecast sounding fill markers";
+    viewerStatus.textContent = "Raw 500mb model-sounding station plots from COD";
     preview.append(renderUpperAirPanel(product));
   }
 
@@ -1218,8 +1218,8 @@ function renderUpperAirPanel(product) {
     </header>
     <div class="upper-air-map" data-upper-map></div>
     <footer class="upper-air-legend">
-      <span><i class="upper-air-dot"></i> COD observed RAOB</span>
-      <span><i class="upper-air-s">S</i> COD HRRR 11Z +1 forecast sounding fill</span>
+      <span><i class="upper-air-s">S</i> COD HRRR 11Z +1 model sounding</span>
+      <span><i class="upper-air-dot"></i> observed RAOB fallback</span>
       <span>Temp upper-left, dewpoint lower-left, height upper-right, wind barb in knots</span>
     </footer>
   `;
@@ -1245,7 +1245,7 @@ function renderUpperAirPanel(product) {
       maxZoom: 9
     }).addTo(map);
     layer = L.layerGroup().addTo(map);
-    L.control.attribution({ prefix: "" }).addAttribution("Upper air: Wyoming/COD local parser").addTo(map);
+    L.control.attribution({ prefix: "" }).addAttribution("Upper air: COD sounding parser").addTo(map);
   }
 
   function load() {
@@ -1255,7 +1255,7 @@ function renderUpperAirPanel(product) {
     }
     ensureMap();
     setStatus("Loading upper-air stations...");
-    const params = new URLSearchParams({ level: String(product.level) });
+    const params = new URLSearchParams({ level: String(product.level), source: "model" });
     const requestedCycle = pageParams.get("upperCycle");
     if (requestedCycle) params.set("cycle", requestedCycle);
     const upperServiceBase = pageParams.get("upperService") || localServiceBase || "";
@@ -1283,7 +1283,7 @@ function renderUpperAirPanel(product) {
         }
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
-        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} forecast fills` : ""} - ${data.validTime || "latest run"}`);
+        setStatus(`${stations.length} stations - ${forecast} model soundings${observed ? `, ${observed} observed fallback` : ""} - ${data.validTime || "latest run"}`);
         window.setTimeout(() => map.invalidateSize(), 100);
       })
       .catch((error) => {
@@ -1330,24 +1330,23 @@ function upperAirWindBarbSvg(direction, speed) {
   const dir = Number(direction);
   const spd = Math.max(0, Math.round(Number(speed) / 5) * 5);
   if (!Number.isFinite(dir) || !spd) return "";
-  const rotate = dir + 180;
   let remaining = spd;
-  let y = 8;
-  const parts = ['<line x1="0" y1="0" x2="0" y2="-30"></line>'];
+  let y = -32;
+  const parts = ['<line x1="0" y1="0" x2="0" y2="-34"></line>'];
   while (remaining >= 50) {
-    parts.push(`<path d="M 0 ${-y} L 12 ${-(y + 5)} L 0 ${-(y + 10)} Z"></path>`);
+    parts.push(`<path d="M 0 ${y} L 12 ${y + 5} L 0 ${y + 10} Z"></path>`);
     remaining -= 50;
     y += 10;
   }
   while (remaining >= 10) {
-    parts.push(`<line x1="0" y1="${-y}" x2="12" y2="${-(y + 5)}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="12" y2="${y + 5}"></line>`);
     remaining -= 10;
     y += 5;
   }
   if (remaining >= 5) {
-    parts.push(`<line x1="0" y1="${-y}" x2="7" y2="${-(y + 3)}"></line>`);
+    parts.push(`<line x1="0" y1="${y}" x2="7" y2="${y + 3}"></line>`);
   }
-  return `<svg class="ua-barb" viewBox="-18 -42 36 48" aria-hidden="true"><g transform="translate(0,0) rotate(${rotate})">${parts.join("")}</g></svg>`;
+  return `<svg class="ua-barb" viewBox="-18 -42 42 52" aria-hidden="true"><g transform="translate(0,0) rotate(${dir})">${parts.join("")}</g></svg>`;
 }
 
 function renderSurfaceDashboard(product) {

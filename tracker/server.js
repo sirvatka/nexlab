@@ -127,11 +127,15 @@ function parseAnalysisDate(text) {
   return new Date(Date.UTC(year, months[cod[3]], Number(cod[2]), Number(cod[1])));
 }
 
-function supplementTiming(url, observedStations) {
-  const requestedAnalysis = parseAnalysisDate(url.searchParams.get("analysis") || url.searchParams.get("cycle"));
-  const observedAnalysis = observedStations.map((station) => parseAnalysisDate(station?.validTime)).find(Boolean);
-  const analysisDate = requestedAnalysis || observedAnalysis || new Date();
-  const analysisRun = formatRunDate(analysisDate);
+function latest12zAnalysisRun() {
+  const now = new Date();
+  const analysisDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12));
+  if (analysisDate.getTime() > now.getTime()) analysisDate.setUTCDate(analysisDate.getUTCDate() - 1);
+  return formatRunDate(analysisDate);
+}
+
+function supplementTiming() {
+  const analysisRun = latest12zAnalysisRun();
   return {
     analysisRun,
     forecastRun: offsetRun(analysisRun, -3),
@@ -264,9 +268,8 @@ async function loadObservedUpperStation(station, level) {
 async function loadForecastUpperStation(station, level, run, hour = 3) {
   const [id, number, name, lat, lon] = station;
   const model = "RAP";
-  const candidateRun = run;
   try {
-    const text = await fetchTextWithTimeout(codForecastSoundingUrl(candidateRun, station, hour, model), 15000);
+    const text = await fetchTextWithTimeout(codForecastSoundingUrl(run, station, hour, model), 15000);
     const rows = parseUpperRows(text);
     const data = interpolateLevel(rows, level);
     const valid = text.match(/Date:\s*([^\n\r]+)/i);
@@ -281,9 +284,9 @@ async function loadForecastUpperStation(station, level, run, hour = 3) {
       source: "forecast",
       marker: "S",
       model,
-      run: candidateRun,
+      run,
       forecastHour: hour,
-      validTime: valid ? valid[1].trim() : `${candidateRun} F${String(hour).padStart(3, "0")}`,
+      validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
       ...data
     };
   } catch {
@@ -320,27 +323,27 @@ async function proxyUpperAnalysis(url, res) {
 
   try {
     const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "observed").toLowerCase();
-    let forecastRun = String(url.searchParams.get("run") || "").replace(/[^0-9]/g, "").slice(0, 10);
-    let forecastHour = Number(url.searchParams.get("hour") || 3);
+    let forecastRun = "";
+    let forecastHour = 3;
     let analysisRun = "";
     let stations;
     if (sourceMode === "observed") {
       const observed = await mapLimit(upperAirStations, 8, (station) => loadObservedUpperStation(station, level));
-      const timing = supplementTiming(url, observed.filter(Boolean));
+      const timing = supplementTiming();
       analysisRun = timing.analysisRun;
-      forecastRun = forecastRun || timing.forecastRun;
-      forecastHour = Number.isFinite(forecastHour) ? forecastHour : timing.forecastHour;
-      stations = await mapLimit(upperAirStations, 2, (station, index) => {
+      forecastRun = timing.forecastRun;
+      forecastHour = timing.forecastHour;
+      stations = await mapLimit(upperAirStations, 1, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
         return loadForecastUpperStation(station, level, forecastRun, forecastHour)
           .then((forecast) => forecast || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
       });
     } else {
-      const timing = supplementTiming(url, []);
+      const timing = supplementTiming();
       analysisRun = timing.analysisRun;
-      forecastRun = forecastRun || timing.forecastRun;
-      forecastHour = Number.isFinite(forecastHour) ? forecastHour : timing.forecastHour;
-      const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
+      forecastRun = timing.forecastRun;
+      forecastHour = timing.forecastHour;
+      const forecast = await mapLimit(upperAirStations, 1, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
       stations = await mapLimit(upperAirStations, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
         return loadObservedUpperStation(station, level)

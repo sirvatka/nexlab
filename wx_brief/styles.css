@@ -348,15 +348,6 @@ button:disabled {
   background: #dfe9ed;
 }
 
-.upper-air-map .upper-air-base-tile {
-  filter: contrast(1.12) saturate(0.28) brightness(1.08);
-}
-
-.upper-air-map .upper-air-boundary-tile {
-  filter: grayscale(1) contrast(2.65) brightness(0.5);
-  mix-blend-mode: multiply;
-}
-
 .cod-upper-display {
   display: grid;
   place-items: center;
@@ -556,14 +547,6 @@ button:disabled {
     border-radius: 0;
   }
 
-  body.printing-upper-air .upper-air-map .upper-air-base-tile {
-    filter: contrast(1.15) saturate(0.22) brightness(1.08);
-  }
-
-  body.printing-upper-air .upper-air-map .upper-air-boundary-tile {
-    filter: grayscale(1) contrast(3) brightness(0.45);
-    mix-blend-mode: multiply;
-  }
 }
 
 .surface-map-panel,

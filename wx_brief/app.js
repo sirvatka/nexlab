@@ -1201,7 +1201,6 @@ function renderAviationViewer(defaultStation) {
 }
 
 function renderUpperAirPanel(product) {
-  const upperAirBoundsSpec = [[18.0, -130.0], [56.6, -52.0]];
   const panel = document.createElement("div");
   panel.className = "upper-air-panel";
   panel.innerHTML = `
@@ -1238,25 +1237,13 @@ function renderUpperAirPanel(product) {
 
   function ensureMap() {
     if (map || !window.L) return;
-    const upperAirBounds = L.latLngBounds(upperAirBoundsSpec);
     map = L.map(mapNode, {
       zoomControl: true,
       attributionControl: false,
-      preferCanvas: true,
-      zoomSnap: 0.25,
-      maxBounds: upperAirBounds.pad(0.08),
-      maxBoundsViscosity: 0.85
-    }).fitBounds(upperAirBounds, { padding: [8, 8] });
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd",
-      maxZoom: 9,
-      className: "upper-air-base-tile"
-    }).addTo(map);
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 9,
-      opacity: 0.95,
-      className: "upper-air-boundary-tile",
-      pane: "overlayPane"
+      preferCanvas: true
+    }).setView([39.2, -96.5], 4);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 9
     }).addTo(map);
     layer = L.layerGroup().addTo(map);
     L.control.attribution({ prefix: "" }).addAttribution("Upper air: COD sounding parser").addTo(map);
@@ -1292,7 +1279,9 @@ function renderUpperAirPanel(product) {
             })
           }).bindTooltip(upperAirTooltip(station), { direction: "top", opacity: 0.95 }).addTo(layer);
         });
-        map.fitBounds(L.latLngBounds(upperAirBoundsSpec), { padding: [8, 8] });
+        if (stations.length > 0) {
+          map.fitBounds(L.latLngBounds(stations.map((station) => [station.lat, station.lon])), { padding: [22, 22], maxZoom: 5 });
+        }
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
         setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);

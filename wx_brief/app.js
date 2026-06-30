@@ -1210,6 +1210,10 @@ function renderUpperAirPanel(product) {
         <h3>${product.level}mb station model</h3>
       </div>
       <div class="upper-air-actions">
+        <div class="upper-air-cycle" role="group" aria-label="Analysis cycle">
+          <button type="button" data-upper-cycle="12">12Z</button>
+          <button type="button" data-upper-cycle="00">00Z</button>
+        </div>
         <span class="upper-air-status" data-upper-status>Waiting for data...</span>
         <a class="button upper-air-pdf" href="${product.imageUrl}" target="_blank" rel="noreferrer">COD GIF</a>
         <a class="button upper-air-pdf" href="${product.pdfUrl}" target="_blank" rel="noreferrer">PDF</a>
@@ -1227,12 +1231,27 @@ function renderUpperAirPanel(product) {
 
   const status = panel.querySelector("[data-upper-status]");
   const mapNode = panel.querySelector("[data-upper-map]");
+  const cycleButtons = [...panel.querySelectorAll("[data-upper-cycle]")];
+  let activeCycle = (pageParams.get("upperCycle") || "12").padStart(2, "0");
+  if (!["00", "12"].includes(activeCycle)) activeCycle = "12";
   let map = null;
   let layer = null;
+  let currentStations = [];
 
   function setStatus(text, error = false) {
     status.textContent = text;
     status.classList.toggle("error", error);
+  }
+
+  function updateCycleButtons() {
+    cycleButtons.forEach((button) => {
+      button.classList.toggle("selected", button.dataset.upperCycle === activeCycle);
+    });
+  }
+
+  function fitUpperAirMap() {
+    if (!map || currentStations.length === 0) return;
+    map.fitBounds(L.latLngBounds(currentStations.map((station) => [station.lat, station.lon])), { padding: [22, 22], maxZoom: 5 });
   }
 
   function ensureMap() {
@@ -1255,10 +1274,10 @@ function renderUpperAirPanel(product) {
       return;
     }
     ensureMap();
+    updateCycleButtons();
     setStatus("Loading upper-air stations...");
     const params = new URLSearchParams({ level: String(product.level), source: "observed" });
-    const requestedCycle = pageParams.get("upperCycle");
-    if (requestedCycle) params.set("cycle", requestedCycle);
+    params.set("cycle", activeCycle);
     const upperServiceBase = pageParams.get("upperService") || localServiceBase || "";
     const endpoint = `${upperServiceBase}/api/upper-analysis?${params.toString()}`;
     fetch(cacheBust(endpoint), { cache: "no-store" })
@@ -1269,6 +1288,7 @@ function renderUpperAirPanel(product) {
       .then((data) => {
         layer.clearLayers();
         const stations = Array.isArray(data.stations) ? data.stations : [];
+        currentStations = stations;
         stations.forEach((station) => {
           L.marker([station.lat, station.lon], {
             icon: L.divIcon({
@@ -1279,28 +1299,47 @@ function renderUpperAirPanel(product) {
             })
           }).bindTooltip(upperAirTooltip(station), { direction: "top", opacity: 0.95 }).addTo(layer);
         });
-        if (stations.length > 0) {
-          map.fitBounds(L.latLngBounds(stations.map((station) => [station.lat, station.lon])), { padding: [22, 22], maxZoom: 5 });
-        }
+        fitUpperAirMap();
         const observed = stations.filter((station) => station.source === "observed").length;
         const forecast = stations.filter((station) => station.source === "forecast").length;
-        setStatus(`${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);
+        const cycleLabel = `${activeCycle}Z analysis`;
+        setStatus(`${cycleLabel} - ${stations.length} stations - ${observed} observed${forecast ? `, ${forecast} RAP supplements` : ""} - ${data.validTime || "latest run"}`);
         window.setTimeout(() => map.invalidateSize(), 100);
       })
       .catch((error) => {
+        currentStations = [];
         setStatus(`Upper-air plot needs local service: ${error.message}`, true);
         if (layer) layer.clearLayers();
       });
   }
 
+  cycleButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeCycle = button.dataset.upperCycle;
+      updateCycleButtons();
+      load();
+    });
+  });
   panel.querySelector("[data-upper-refresh]").addEventListener("click", load);
   panel.querySelector("[data-upper-print]").addEventListener("click", () => {
+    const cleanup = () => {
+      document.body.classList.remove("printing-upper-air");
+      window.removeEventListener("afterprint", cleanup);
+      if (map) {
+        window.setTimeout(() => {
+          map.invalidateSize();
+          fitUpperAirMap();
+        }, 60);
+      }
+    };
+    window.addEventListener("afterprint", cleanup);
     document.body.classList.add("printing-upper-air");
-    if (map) map.invalidateSize();
-    window.setTimeout(() => {
-      window.print();
-      window.setTimeout(() => document.body.classList.remove("printing-upper-air"), 500);
-    }, 80);
+    if (map) {
+      map.invalidateSize();
+      fitUpperAirMap();
+    }
+    window.print();
+    window.setTimeout(cleanup, 2000);
   });
   window.setTimeout(load, 0);
   return panel;

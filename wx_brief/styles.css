@@ -323,10 +323,32 @@ button:disabled {
   gap: 0.55rem;
 }
 
+.upper-air-cycle {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.15rem;
+  border: 1px solid rgba(14, 197, 255, 0.24);
+  border-radius: 0.45rem;
+  background: rgba(10, 26, 41, 0.08);
+}
+
 .upper-air-actions button {
   min-height: 2rem;
   padding: 0 0.65rem;
   font-size: 0.76rem;
+}
+
+.upper-air-cycle button {
+  min-height: 1.65rem;
+  border-color: transparent;
+  background: transparent;
+  color: var(--navy);
+}
+
+.upper-air-cycle button.selected {
+  border-color: rgba(14, 197, 255, 0.45);
+  background: linear-gradient(135deg, #0ec5ff, #2878ff);
+  color: #fff;
 }
 
 .upper-air-status {

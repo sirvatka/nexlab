@@ -122,21 +122,21 @@ function parseAnalysisDate(text) {
     ));
   }
   const months = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
-  const cod = value.match(/(\d{2})Z.*?\b(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})\b/);
+  const cod = value.match(/\b(\d{2})(?:00)?Z.*?\b(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})\b/);
   if (!cod || months[cod[3]] == null) return null;
   const year = Number(cod[4].length === 2 ? `20${cod[4]}` : cod[4]);
   return new Date(Date.UTC(year, months[cod[3]], Number(cod[2]), Number(cod[1])));
 }
 
-function latest12zAnalysisRun() {
+function latestAnalysisRun(hour = 12) {
   const now = new Date();
-  const analysisDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12));
+  const analysisDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour));
   if (analysisDate.getTime() > now.getTime()) analysisDate.setUTCDate(analysisDate.getUTCDate() - 1);
   return formatRunDate(analysisDate);
 }
 
-function supplementTiming() {
-  const analysisRun = latest12zAnalysisRun();
+function supplementTiming(cycleHour = 12) {
+  const analysisRun = latestAnalysisRun(cycleHour);
   return {
     analysisRun,
     forecastRun: offsetRun(analysisRun, -3),
@@ -287,13 +287,21 @@ async function mapLimit(items, limit, worker) {
   return results;
 }
 
-async function loadObservedUpperStation(station, level) {
+function runHour(run) {
+  return Number(String(run).slice(8, 10));
+}
+
+async function loadObservedUpperStation(station, level, expectedHour = null) {
   const [id, number, name, lat, lon] = station;
   try {
     const text = await fetchTextWithTimeout(codRaobTextUrl(id));
     const rows = parseUpperRows(text);
     const data = interpolateLevel(rows, level);
     const valid = text.match(/Date:\s*([^\n\r]+)/i);
+    const validDate = valid ? parseAnalysisDate(valid[1]) : null;
+    if (expectedHour != null && (!validDate || validDate.getUTCHours() !== expectedHour)) {
+      throw new Error("Observed sounding is not for requested cycle");
+    }
     if (!data || data.temp == null || data.height == null) throw new Error("No observed level row");
     return {
       id,
@@ -374,6 +382,11 @@ async function proxyUpperAnalysis(url, res) {
     send(res, 400, JSON.stringify({ error: "Invalid pressure level" }), mimeTypes[".json"]);
     return;
   }
+  const cycleHour = Number(url.searchParams.get("cycle") || 12);
+  if (![0, 12].includes(cycleHour)) {
+    send(res, 400, JSON.stringify({ error: "Invalid analysis cycle. Use 00 or 12." }), mimeTypes[".json"]);
+    return;
+  }
 
   try {
     const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "observed").toLowerCase();
@@ -388,25 +401,26 @@ async function proxyUpperAnalysis(url, res) {
     let analysisRun = "";
     let stations;
     if (sourceMode === "observed") {
-      const observed = await mapLimit(stationList, 8, (station) => loadObservedUpperStation(station, level));
-      const timing = supplementTiming();
+      const timing = supplementTiming(cycleHour);
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
+      const expectedHour = runHour(analysisRun);
+      const observed = await mapLimit(stationList, 8, (station) => loadObservedUpperStation(station, level, expectedHour));
       stations = await mapLimit(stationList, 2, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
         return loadForecastUpperStation(station, level, forecastRun, forecastHour)
           .then((forecast) => forecast || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
       });
     } else {
-      const timing = supplementTiming();
+      const timing = supplementTiming(cycleHour);
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
       const forecast = await mapLimit(stationList, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
       stations = await mapLimit(stationList, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
-        return loadObservedUpperStation(station, level)
+        return loadObservedUpperStation(station, level, runHour(analysisRun))
           .then((observedStation) => observedStation || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
       });
     }

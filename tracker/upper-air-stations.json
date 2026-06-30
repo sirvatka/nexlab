@@ -317,7 +317,11 @@
     "lon": -109.1808,
     "elevM": 694,
     "name": "Kindersley, SK",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 51.52,
+      "lon": -109.18
+    }
   },
   {
     "id": "CYPL",
@@ -347,7 +351,11 @@
     "lon": -104.67,
     "elevM": null,
     "name": "Regina",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 50.43,
+      "lon": -104.67
+    }
   },
   {
     "id": "73033",
@@ -387,7 +395,11 @@
     "lon": -112.7997,
     "elevM": 929,
     "name": "Lethbridge, AB",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 49.68,
+      "lon": -112.8
+    }
   },
   {
     "id": "73111",
@@ -447,7 +459,11 @@
     "lon": -97.08,
     "elevM": null,
     "name": "Grand Forks",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 47.98,
+      "lon": -97.08
+    }
   },
   {
     "id": "72786",
@@ -567,7 +583,11 @@
     "lon": -106.9803,
     "elevM": 1209,
     "name": "Sheridan, WY",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 44.77,
+      "lon": -106.98
+    }
   },
   {
     "id": "KGRB",
@@ -627,7 +647,11 @@
     "lon": -112.0708,
     "elevM": 1445,
     "name": "Idaho Falls, ID",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 43.51,
+      "lon": -112.07
+    }
   },
   {
     "id": "72672",
@@ -677,7 +701,11 @@
     "lon": -98.6881,
     "elevM": 619,
     "name": "O'Neill, NE",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 42.47,
+      "lon": -98.69
+    }
   },
   {
     "id": "KMFR",
@@ -697,7 +725,11 @@
     "lon": -93.72,
     "elevM": null,
     "name": "Des Moines",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 42.17,
+      "lon": -93.69
+    }
   },
   {
     "id": "KDVN",
@@ -717,7 +749,11 @@
     "lon": -85.7,
     "elevM": null,
     "name": "North Webster",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 41.36,
+      "lon": -85.7
+    }
   },
   {
     "id": "KOAX",
@@ -807,7 +843,11 @@
     "lon": -104.67,
     "elevM": 1655,
     "name": "Denver",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 39.86,
+      "lon": -104.67
+    }
   },
   {
     "id": "KREV",
@@ -867,7 +907,11 @@
     "lon": -90.68,
     "elevM": null,
     "name": "St. Louis",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 38.75,
+      "lon": -90.68
+    }
   },
   {
     "id": "KEVV",
@@ -877,7 +921,11 @@
     "lon": -87.5324,
     "elevM": 118,
     "name": "Evansville, IN",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 38.04,
+      "lon": -87.53
+    }
   },
   {
     "id": "KDDC",
@@ -907,7 +955,11 @@
     "lon": -102.6167,
     "elevM": 1340,
     "name": "Springfield, CO",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 37.28,
+      "lon": -102.62
+    }
   },
   {
     "id": "KSGF",
@@ -987,7 +1039,11 @@
     "lon": -89.87,
     "elevM": null,
     "name": "Memphis",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 35.35,
+      "lon": -89.87
+    }
   },
   {
     "id": "KAMA",
@@ -1207,7 +1263,11 @@
     "lon": -96.36,
     "elevM": null,
     "name": "College Station",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 30.59,
+      "lon": -96.36
+    }
   },
   {
     "id": "KJAX",
@@ -1237,7 +1297,11 @@
     "lon": -84.37,
     "elevM": null,
     "name": "Tallahassee",
-    "baseline": false
+    "baseline": false,
+    "fsoundPoint": {
+      "lat": 30.38,
+      "lon": -84.37
+    }
   },
   {
     "id": "KLIX",

@@ -86,7 +86,8 @@ const upperAirStations = JSON.parse(fs.readFileSync(path.join(root, "upper-air-s
     station.lon,
     station.elevM,
     station.igra || "",
-    station.baseline !== false
+    station.baseline !== false,
+    station.fsoundPoint || null
   ]);
 
 function formatRunDate(date) {
@@ -149,8 +150,10 @@ function codRaobTextUrl(stationId) {
 }
 
 function codForecastSoundingUrl(run, station, hour = 3, model = "RAP") {
-  const [, , , lat, lon] = station;
-  const type = `${run}|${model}|US|500|temp|${hour}|${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}|ml|severe`;
+  const [, , , lat, lon, , , , fsoundPoint] = station;
+  const pointLat = Number(fsoundPoint?.lat ?? lat);
+  const pointLon = Number(fsoundPoint?.lon ?? lon);
+  const type = `${run}|${model}|US|500|spd|${hour}|${pointLat.toFixed(2)},${pointLon.toFixed(2)}|ml|severe`;
   return `https://weather.cod.edu/forecast/fsound/index.php?type=${encodeURIComponent(type)}`;
 }
 
@@ -158,6 +161,7 @@ function stationAtOffset(station, latOffset, lonOffset) {
   const copy = [...station];
   copy[3] = Number(station[3]) + latOffset;
   copy[4] = Number(station[4]) + lonOffset;
+  if (latOffset !== 0 || lonOffset !== 0) copy[8] = null;
   return copy;
 }
 
@@ -167,8 +171,37 @@ function isLikelyRapDomain(station) {
   return lat >= 20 && lat <= 55 && lon >= -130 && lon <= -60;
 }
 
+function nearbyPointOffsets(maxDistance = 0.55, step = 0.1) {
+  const values = [];
+  for (let value = -maxDistance; value <= maxDistance + 0.001; value += step) {
+    values.push(Number(value.toFixed(2)));
+  }
+  return values
+    .flatMap((latOffset) => values.map((lonOffset) => [latOffset, lonOffset]))
+    .concat([[0, 0]])
+    .filter(([latOffset, lonOffset], index, offsets) => (
+      offsets.findIndex(([a, b]) => a === latOffset && b === lonOffset) === index
+    ))
+    .sort((a, b) => Math.hypot(a[0], a[1]) - Math.hypot(b[0], b[1]));
+}
+
+function forecastPointForStation(station) {
+  const [, , , lat, lon, , , , fsoundPoint] = station;
+  return {
+    lat: Number(fsoundPoint?.lat ?? lat),
+    lon: Number(fsoundPoint?.lon ?? lon)
+  };
+}
+
 function parseUpperRows(html) {
-  const text = html.replace(/<[^>]+>/g, "\n");
+  const preBlocks = [...html.matchAll(/<pre[^>]*>([\s\S]*?)<\/pre>/gi)]
+    .map((match) => match[1].replace(/&nbsp;/g, " "))
+    .map((text) => text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
+  const soundingBlock = preBlocks.find((text) => /LEV\s+PRES\s+HGHT/i.test(text) || /PRES\s+HGHT\s+TEMP/i.test(text));
+  if (preBlocks.length && !soundingBlock && /forecast\/fsound|MODEL GRIDDED SOUNDING|File not found/i.test(html)) {
+    return [];
+  }
+  const text = (soundingBlock || html).replace(/<[^>]+>/g, "\n");
   return text.split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => /^\d+\s+/.test(line))
@@ -281,11 +314,7 @@ async function loadObservedUpperStation(station, level) {
 async function loadForecastUpperStation(station, level, run, hour = 3) {
   const [id, number, name, lat, lon] = station;
   const model = "RAP";
-  const offsets = isLikelyRapDomain(station) ? [
-    [0, 0], [0.1, 0], [-0.1, 0], [0, 0.1], [0, -0.1],
-    [0.1, 0.1], [0.1, -0.1], [-0.1, 0.1], [-0.1, -0.1],
-    [0.25, 0], [-0.25, 0], [0, 0.25], [0, -0.25]
-  ] : [[0, 0]];
+  const offsets = isLikelyRapDomain(station) ? nearbyPointOffsets() : [[0, 0]];
   for (const [latOffset, lonOffset] of offsets) {
     try {
       const sampleStation = stationAtOffset(station, latOffset, lonOffset);
@@ -294,6 +323,7 @@ async function loadForecastUpperStation(station, level, run, hour = 3) {
       const data = interpolateLevel(rows, level);
       const valid = text.match(/Date:\s*([^\n\r]+)/i);
       if (!data || data.temp == null || data.height == null) throw new Error("No forecast level row");
+      const samplePoint = forecastPointForStation(sampleStation);
       return {
         id,
         number,
@@ -306,8 +336,8 @@ async function loadForecastUpperStation(station, level, run, hour = 3) {
         model,
         run,
         forecastHour: hour,
-        sampleLat: sampleStation[3],
-        sampleLon: sampleStation[4],
+        sampleLat: samplePoint.lat,
+        sampleLon: samplePoint.lon,
         validTime: valid ? valid[1].trim() : `${run} F${String(hour).padStart(3, "0")}`,
         ...data
       };
@@ -347,17 +377,23 @@ async function proxyUpperAnalysis(url, res) {
 
   try {
     const sourceMode = String(url.searchParams.get("source") || url.searchParams.get("mode") || "observed").toLowerCase();
+    const stationFilter = String(url.searchParams.get("station") || "").trim().toUpperCase();
+    const stationList = stationFilter ? upperAirStations.filter((station) => String(station[0]).toUpperCase() === stationFilter) : upperAirStations;
+    if (stationFilter && stationList.length === 0) {
+      send(res, 404, JSON.stringify({ error: `Station ${stationFilter} not found` }), mimeTypes[".json"]);
+      return;
+    }
     let forecastRun = "";
     let forecastHour = 3;
     let analysisRun = "";
     let stations;
     if (sourceMode === "observed") {
-      const observed = await mapLimit(upperAirStations, 8, (station) => loadObservedUpperStation(station, level));
+      const observed = await mapLimit(stationList, 8, (station) => loadObservedUpperStation(station, level));
       const timing = supplementTiming();
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
-      stations = await mapLimit(upperAirStations, 2, (station, index) => {
+      stations = await mapLimit(stationList, 2, (station, index) => {
         if (observed[index]) return Promise.resolve(observed[index]);
         return loadForecastUpperStation(station, level, forecastRun, forecastHour)
           .then((forecast) => forecast || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
@@ -367,8 +403,8 @@ async function proxyUpperAnalysis(url, res) {
       analysisRun = timing.analysisRun;
       forecastRun = timing.forecastRun;
       forecastHour = timing.forecastHour;
-      const forecast = await mapLimit(upperAirStations, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
-      stations = await mapLimit(upperAirStations, 8, (station, index) => {
+      const forecast = await mapLimit(stationList, 2, (station) => loadForecastUpperStation(station, level, forecastRun, forecastHour));
+      stations = await mapLimit(stationList, 8, (station, index) => {
         if (forecast[index]) return Promise.resolve(forecast[index]);
         return loadObservedUpperStation(station, level)
           .then((observedStation) => observedStation || missingUpperStation(station, level, analysisRun, forecastRun, forecastHour));
@@ -490,7 +526,7 @@ async function proxyTracker(res) {
 }
 
 function proxyUpperStations(res) {
-  const stations = upperAirStations.map(([id, wmo, name, lat, lon, elevM, igra, baseline]) => ({
+  const stations = upperAirStations.map(([id, wmo, name, lat, lon, elevM, igra, baseline, fsoundPoint]) => ({
     id,
     wmo,
     igra,
@@ -498,7 +534,8 @@ function proxyUpperStations(res) {
     lon,
     elevM,
     name,
-    baseline
+    baseline,
+    fsoundPoint
   }));
   send(res, 200, JSON.stringify({ count: stations.length, stations }, null, 2), mimeTypes[".json"]);
 }

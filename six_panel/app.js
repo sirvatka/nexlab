@@ -57,6 +57,18 @@ Object.values(BUILTIN_CONFIGURATIONS).forEach(setup => setup.panels.forEach(pane
   }
 }));
 
+BUILTIN_CONFIGURATIONS["Midwest Snow - Short Range (Kuchera)"] = {
+  panels: ["HRRR", "RAP", "RRFS", "NAM", "RDPS", "GFS"].map(model => ({
+    model, region: "MW", productKey: "winter/kuchsnow"
+  }))
+};
+
+BUILTIN_CONFIGURATIONS["Midwest Snow - Long Range (Kuchera)"] = {
+  panels: [0, 1].flatMap(runOffset => ["GFS", "ECMWF", "AIFS"].map(model => ({
+    model, region: "MW", productKey: "winter/kuchsnow", runOffset, extendedRun: ["ECMWF", "AIFS"].includes(model)
+  })))
+};
+
 function configuration(model, region, productKeys) {
   return { panels: productKeys.map((productKey) => ({ model, region, productKey })) };
 }
@@ -70,7 +82,7 @@ const els = {
 };
 
 function panelState(model, region, productKey) {
-  return { model, region, productKey, requestedRun: "0", frames: [], validtimes: [], index: 0, run: "", fellBackToLatest: false, request: 0, dom: null };
+  return { model, region, productKey, requestedRun: "0", runOffset: 0, extendedRun: false, frames: [], validtimes: [], index: 0, run: "", fellBackToLatest: false, request: 0, dom: null };
 }
 
 function selectedProduct(panel) {
@@ -114,6 +126,8 @@ function buildPanels() {
       const preferred = productsFor(panel).find((item) => item.id === "radar") || productsFor(panel)[0];
       panel.productKey = `${preferred.level}/${preferred.id}`;
       panel.requestedRun = "0";
+      panel.runOffset = 0;
+      panel.extendedRun = false;
       refreshPanelControls(panel); loadPanel(index);
     });
     panel.dom.region.addEventListener("change", (event) => { event.stopPropagation(); markConfigurationCustom(); panel.region = panel.dom.region.value; refreshPanelControls(panel); loadPanel(index); });
@@ -188,6 +202,40 @@ async function loadPanel(index) {
         }
       }
     }
+    if (panel.extendedRun && hasFrames(data)) {
+      const availableRun = extractRun(data.files[0]);
+      if (!["00", "12"].includes(availableRun.slice(8))) {
+        let extendedData = null;
+        for (const candidate of buildRunCandidates(availableRun, panel.model).filter(run => ["00", "12"].includes(run.slice(8)))) {
+          try {
+            const candidateData = await fetchRun(candidate);
+            if (hasFrames(candidateData) && ["00", "12"].includes(extractRun(candidateData.files[0]).slice(8))) {
+              extendedData = candidateData;
+              break;
+            }
+          } catch { /* Continue to an earlier extended cycle. */ }
+        }
+        if (!extendedData) throw new Error("Extended forecast cycle unavailable.");
+        data = extendedData;
+      }
+    }
+    if (panel.runOffset === 1) {
+      if (!hasFrames(data)) throw new Error("Latest run unavailable; cannot identify the previous run.");
+      const latestRun = extractRun(data.files[0]);
+      let previousData = null;
+      for (const candidate of buildRunCandidates(latestRun, panel.model).slice(1).filter(run => !panel.extendedRun || ["00", "12"].includes(run.slice(8)))) {
+        try {
+          const earlier = await fetchRun(candidate);
+          if (hasFrames(earlier) && extractRun(earlier.files[0]) < latestRun) {
+            previousData = earlier;
+            break;
+          }
+        } catch { /* Try the next earlier available cycle. */ }
+      }
+      if (!previousData) throw new Error("Previous run unavailable for this product.");
+      data = previousData;
+      fellBackToLatest = false;
+    }
     if (request !== panel.request) return;
     if (!hasFrames(data) && firstError) throw firstError;
     panel.fellBackToLatest = fellBackToLatest;
@@ -217,12 +265,25 @@ function renderPanel(index) {
   const panel = state.panels[index];
   const frame = panel.frames[panel.index];
   if (!frame) return;
+  const firstValid = Number(panel.validtimes[0]);
+  const lastValid = Number(panel.validtimes[panel.validtimes.length - 1]);
+  if (state.validTime != null && (state.validTime < firstValid || state.validTime > lastValid)) {
+    panel.dom.image.removeAttribute("src");
+    panel.dom.message.hidden = false;
+    panel.dom.message.textContent = state.validTime > lastValid
+      ? `Forecast ends ${formatValid(lastValid)} (F${forecastHour(panel.frames[panel.frames.length - 1])})`
+      : `Forecast starts ${formatValid(firstValid)}`;
+    panel.dom.frame.textContent = "Selected valid time unavailable";
+    panel.dom.run.textContent = panel.run ? `Run ${formatRun(panel.run)}` : "Latest run";
+    return;
+  }
+  panel.dom.message.hidden = true;
   panel.dom.image.src = frame;
   const product = selectedProduct(panel);
   panel.dom.image.alt = `${modelLabels[panel.model]} ${regionNames[panel.region] || panel.region} ${product.label}`;
   panel.dom.frame.textContent = `F${forecastHour(frame)} · Valid ${formatValid(panel.validtimes[panel.index])}`;
   panel.dom.run.textContent = panel.run
-    ? `Run ${formatRun(panel.run)}${panel.fellBackToLatest ? " · latest available" : ""}`
+    ? `Run ${formatRun(panel.run)}${panel.runOffset ? (panel.extendedRun ? " · previous extended run" : " · previous available run") : panel.fellBackToLatest ? " · latest available" : ""}`
     : "Latest run";
 }
 
@@ -287,7 +348,7 @@ function saveCurrentConfiguration() {
   const configurations = savedConfigurations();
   if (configurations[name] && !window.confirm(`Replace the saved configuration "${name}"?`)) return;
   configurations[name] = {
-    panels: state.panels.map((panel) => ({ model: panel.model, region: panel.region, productKey: panel.productKey }))
+    panels: state.panels.map((panel) => ({ model: panel.model, region: panel.region, productKey: panel.productKey, runOffset: panel.runOffset || 0, extendedRun: !!panel.extendedRun }))
   };
   try {
     localStorage.setItem(CONFIGURATION_STORAGE_KEY, JSON.stringify(configurations));
@@ -311,6 +372,8 @@ function applyConfiguration(name) {
     const product = productsFor(panel).find((item) => `${item.level}/${item.id}` === configuration.productKey) || productsFor(panel)[0];
     panel.productKey = `${product.level}/${product.id}`;
     panel.requestedRun = "0";
+    panel.runOffset = configuration.runOffset === 1 ? 1 : 0;
+    panel.extendedRun = configuration.extendedRun === true;
     panel.dom.model.value = panel.model;
     refreshPanelControls(panel);
     loadPanel(index);
@@ -402,6 +465,8 @@ function closestRunForModel(run, model) {
 
 function applyGlobalRun(run) {
   state.panels.forEach((panel, index) => {
+    panel.runOffset = 0;
+      panel.extendedRun = false;
     panel.requestedRun = run === "0" ? "0" : closestRunForModel(run, panel.model);
     loadPanel(index);
   });
@@ -421,6 +486,8 @@ function applyGlobalModel(model) {
       || productsFor(panel)[0];
     panel.productKey = `${product.level}/${product.id}`;
     panel.requestedRun = "0";
+      panel.runOffset = 0;
+      panel.extendedRun = false;
     panel.dom.model.value = model;
     refreshPanelControls(panel);
     loadPanel(index);

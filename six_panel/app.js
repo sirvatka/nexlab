@@ -1,71 +1,17 @@
 const COD_ENDPOINT = "https://weather.cod.edu/datapoints/forecast/get-files.php";
 const CONFIGURATION_STORAGE_KEY = "nexlab-six-panel-configurations";
 
-const regionNames = {
-  NIL: "Northern Illinois", MW: "Midwest", GL: "Great Lakes", US: "Continental U.S.",
-  NA: "North America", NE: "Northeast", SE: "Southeast", NW: "Northwest", SW: "Southwest",
-  MA: "Mid-Atlantic", NGP: "Northern Plains", SGP: "Southern Plains", CGP: "Central Great Plains",
-  GBSN: "Great Basin", AK: "Alaska", WCAN: "Western Canada", CA: "Canada", WLD: "World",
-  AO: "Atlantic Ocean", PO: "Pacific Ocean", FLT1: "Floater 1", FLT2: "Floater 2", FLT3: "Floater 3"
-};
-
-const regionSets = {
-  HRRR: ["NIL", "FLT1", "FLT2", "FLT3", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "SE", "SGP", "SW"],
-  RAP: ["NIL", "US", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "SE", "SGP", "SW"],
-  NAM: ["NIL", "US", "AK", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "SE", "SGP", "SW", "WCAN"],
-  NAMNST: ["NIL", "FLT1", "FLT2", "FLT3", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "SE", "SGP", "SW"],
-  GFS: ["NIL", "NA", "US", "AK", "AO", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "PO", "SE", "SGP", "SW", "WCAN", "WLD"],
-  ECMWF: ["NIL", "NA", "US", "AO", "CGP", "GL", "MA", "MW", "NE", "NGP", "NW", "SE", "SGP", "SW", "WLD"],
-  RDPS: ["NIL", "US", "CA", "CGP", "GBSN", "GL", "MA", "MW", "NE", "NGP", "NW", "WCAN"],
-  GDPS: ["NIL", "NA", "US"],
-  GEFS: ["NA", "US", "CGP", "GL", "MA", "MW", "NE", "NGP", "PO", "SE", "SGP"]
-};
-
-const names = {
-  pres: "Pressure @ 2PVU", tadv: "Temperature Advection", wetblb: "Wet Bulb Temperature",
-  vis: "Surface Visibility", lsi: "Lid Strength Index", "3kmehi": "3km EHI",
-  lapse57: "Mid-Level Lapse Rate", lapse81: "Low-Level Lapse Rate",
-  radar: "Simulated Reflectivity", uphlysw: "Helicity Swaths", uphlysw6: "6hr Helicity Swaths",
-  sbcape: "Surface Based CAPE", mlcape: "Mean Layer CAPE", mucape: "Most Unstable CAPE",
-  cape3km: "0-3km CAPE", stp: "Significant Tornado Parameter", scp: "Supercell Composite",
-  "3kmhel": "0-3km SRH", "1kmhel": "0-1km SRH", vil: "Vertically Integrated Liquid",
-  ltng: "Lightning Density", gust: "Wind Gust", temp: "Temperature", dewp: "Dewpoint",
-  "30mbdewp": "Mixed Dewpoint (0-30mb)",
-  thetae: "Theta-E", rhum: "Relative Humidity", avort: "Vorticity", vvel: "Vertical Velocity",
-  spd: "Wind Speed", prec: "SLP and Precipitation", precacc: "Total Precipitation",
-  cprec: "Convective Precipitation", precacc6: "6hr Precipitation", precacc12: "12hr Precipitation",
-  precacc24: "24hr Precipitation", snow6: "6hr Snow", snow12: "12hr Snow", snow24: "24hr Snow",
-  kuchsnow6: "6hr Kuchera Snow", kuchsnow12: "12hr Kuchera Snow", kuchsnow24: "24hr Kuchera Snow",
-  kratio: "Kuchera Snow Ratio", frzra: "Freezing Rain Accumulation", cthk: "Critical Thickness",
-  cloud: "Cloud Cover", ptype: "Precipitation Type", snow: "Snow Accumulation",
-  kuchsnow: "Kuchera Snow", pwat: "Precipitable Water", shear: "Bulk Shear",
-  meanprec: "Mean SLP and Precipitation", meanprecacc: "Mean Precipitation", paccens: "Precipitation Ensemble",
-  meanscp: "Mean Supercell Composite", maxscp: "Max Supercell Composite", scpens: "SCP Ensemble",
-  ptypens: "Precipitation Type Ensemble", meansnacc: "Mean Snow", snens: "Snow Ensemble"
-};
-
-const P = (level, ...ids) => ids.map((id) => ({ level, id, label: names[id] || id }));
-
-const products = {
-  HRRR: [...P("700", "vvel"), ...P("sfc", "temp", "dewp", "rhum", "thetae", "gust", "avort"), ...P("con", "sbcape", "mlcape", "mucape", "cape3km", "stp", "scp", "uphlysw", "uphlysw6", "3kmhel", "1kmhel", "vil", "ltng"), ...P("prec", "radar", "precacc", "cloud"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  RAP: [...P("500", "spd", "avort", "temp", "vvel", "rhum"), ...P("700", "spd", "temp", "vvel", "rhum"), ...P("850", "spd", "temp", "dewp", "thetae", "vvel", "rhum"), ...P("sfc", "temp", "dewp", "rhum", "thetae", "avort"), ...P("con", "sbcape", "mlcape", "mucape", "cape3km", "stp", "scp", "3kmhel", "1kmhel"), ...P("prec", "radar", "prec", "precacc", "pwat"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  NAM: [...P("500", "spd", "avort", "temp", "vvel", "rhum"), ...P("700", "spd", "temp", "vvel", "rhum"), ...P("850", "spd", "temp", "dewp", "thetae", "vvel", "rhum"), ...P("sfc", "temp", "dewp", "rhum", "thetae", "avort"), ...P("con", "sbcape", "mlcape", "mucape", "stp", "scp", "3kmhel", "1kmhel"), ...P("prec", "radar", "prec", "precacc", "pwat", "cloud"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  NAMNST: [...P("700", "vvel"), ...P("sfc", "temp", "dewp", "rhum", "thetae", "gust"), ...P("con", "sbcape", "mlcape", "mucape", "stp", "scp", "uphlysw", "uphlysw6", "3kmhel", "1kmhel"), ...P("prec", "radar", "precacc"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  GFS: [...P("2pvu", "pres"), ...P("250", "spd", "rhum"), ...P("500", "spd", "avort", "temp", "vvel", "rhum"), ...P("700", "spd", "avort", "temp", "vvel", "rhum"), ...P("850", "spd", "thetae", "temp", "tadv", "dewp", "vvel", "rhum"), ...P("925", "spd", "thetae", "temp", "rhum"), ...P("sfc", "temp", "dewp", "rhum", "thetae", "wetblb", "30mbdewp", "vis", "avort"), ...P("con", "sbcape", "mlcape", "mucape", "lsi", "scp", "3kmhel", "3kmehi", "lapse57", "lapse81"), ...P("prec", "prec", "radar", "cprec", "precacc", "precacc6", "precacc12", "precacc24", "pwat", "cloud"), ...P("winter", "ptype", "snow", "snow6", "snow12", "snow24", "kuchsnow", "kuchsnow6", "kuchsnow12", "kuchsnow24", "kratio", "frzra", "cthk")],
-  ECMWF: [...P("500", "spd", "avort", "temp", "rhum"), ...P("700", "spd", "temp", "rhum"), ...P("850", "spd", "temp", "dewp", "thetae", "rhum"), ...P("sfc", "temp", "dewp", "thetae"), ...P("con", "mucape", "shear"), ...P("prec", "prec", "precacc", "pwat"), ...P("winter", "kuchsnow")],
-  RDPS: [...P("500", "spd", "avort", "temp", "vvel", "rhum"), ...P("700", "spd", "temp", "vvel", "rhum"), ...P("850", "spd", "temp", "dewp", "thetae", "vvel", "rhum"), ...P("sfc", "temp", "dewp", "thetae", "avort"), ...P("con", "sbcape"), ...P("prec", "precacc", "pwat", "cloud"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  GDPS: [...P("500", "spd", "avort", "temp", "vvel", "rhum"), ...P("700", "spd", "temp", "vvel", "rhum"), ...P("850", "spd", "temp", "dewp", "thetae", "vvel", "rhum"), ...P("sfc", "temp", "dewp", "thetae", "avort"), ...P("con", "sbcape"), ...P("prec", "precacc", "pwat", "cloud"), ...P("winter", "ptype", "snow", "kuchsnow")],
-  GEFS: [...P("con", "meanscp", "maxscp", "scpens"), ...P("prec", "meanprec", "meanprecacc", "paccens"), ...P("winter", "ptypens", "meansnacc", "snens")]
-};
-
-const modelLabels = { HRRR: "HRRR", RAP: "RAP", NAM: "NAM", NAMNST: "NAM Nest", GFS: "GFS", ECMWF: "ECMWF", RDPS: "RDPS", GDPS: "GDPS", GEFS: "GEFS" };
-const modelOrder = Object.keys(modelLabels);
-const modelCycles = {
-  HRRR: Array.from({ length: 24 }, (_, hour) => hour), RAP: Array.from({ length: 24 }, (_, hour) => hour),
-  NAM: [0, 6, 12, 18], NAMNST: [0, 6, 12, 18], GFS: [0, 6, 12, 18], ECMWF: [0, 6, 12, 18],
-  RDPS: [0, 6, 12, 18], GDPS: [0, 12], GEFS: [0, 6, 12, 18]
-};
-const levelNames = { "2pvu": "Dynamic Tropopause", "250": "250mb", "500": "500mb", "700": "700mb", "850": "850mb", "925": "925mb", sfc: "Surface", con: "Convective", prec: "Precipitation", winter: "Winter" };
+const regionNames = COD_MODEL_CATALOG.sectors;
+const levelNames = COD_MODEL_CATALOG.levels;
+const modelOrder = Object.keys(COD_MODEL_CATALOG.models);
+const regionSets = Object.fromEntries(modelOrder.map(id => [id, COD_MODEL_CATALOG.models[id].sectors]));
+const modelLabels = Object.fromEntries(modelOrder.map(id => [id, COD_MODEL_CATALOG.models[id].label]));
+const modelCycles = Object.fromEntries(modelOrder.map(id => [id, COD_MODEL_CATALOG.models[id].runs]));
+function productsFor(panel) {
+  const model = COD_MODEL_CATALOG.models[panel.model];
+  const levels = model.productsByLevel[panel.region] || model.productsByLevel.general;
+  return Object.entries(levels).flatMap(([level, ids]) => ids.map(id => ({ level, id, label: COD_MODEL_CATALOG.products[id] || id })));
+}
 
 const state = {
   active: 0,
@@ -91,8 +37,25 @@ const BUILTIN_CONFIGURATIONS = {
   "GDPS US": configuration("GDPS", "US", ["500/spd", "850/thetae", "prec/precacc", "sfc/temp", "sfc/dewp", "con/sbcape"]),
   "GEFS US": configuration("GEFS", "US", ["prec/meanprec", "prec/meanprecacc", "prec/paccens", "con/meanscp", "con/maxscp", "con/scpens"]),
   "HRRR CAM": configuration("HRRR", "NIL", ["prec/radar", "con/mucape", "sfc/thetae", "con/scp", "con/uphlysw6", "con/ltng"]),
-  "NAM Nest CAM": configuration("NAMNST", "NIL", ["prec/radar", "con/mucape", "sfc/thetae", "con/scp", "con/stp", "con/3kmhel"])
+  "RRFS CAM": configuration("RRFS", "NIL", ["prec/radar", "con/mucape", "sfc/thetae", "con/scp", "con/stp", "con/3kmhel"])
 };
+
+["RRFS", "REFS", "AIFS", "AIFSENS", "AIGFS", "AIGEFS", "CFS"].forEach(model => {
+  const region = regionSets[model].includes("US") ? "US" : "NIL";
+  const available = productsFor({model, region});
+  const preferred = ["AIFSENS", "AIGEFS"].includes(model)
+    ? ["500/meanwind", "500/hghtens", "850/meantemp", "850/tempens", "prec/meanprec", "prec/meanprecacc"]
+    : ["500/spd", "850/thetae", "prec/prec", "sfc/temp", "sfc/dewp", "con/mucape"];
+  const keys = preferred.map((key, index) => available.some(item => `${item.level}/${item.id}` === key) ? key : `${available[index % available.length].level}/${available[index % available.length].id}`);
+  BUILTIN_CONFIGURATIONS[`${modelLabels[model]} ${region}`] = configuration(model, region, keys);
+});
+Object.values(BUILTIN_CONFIGURATIONS).forEach(setup => setup.panels.forEach(panel => {
+  const available = productsFor(panel);
+  if (!available.some(item => `${item.level}/${item.id}` === panel.productKey)) {
+    const preferred = available.find(item => item.id === "radar") || available[0];
+    panel.productKey = `${preferred.level}/${preferred.id}`;
+  }
+}));
 
 function configuration(model, region, productKeys) {
   return { panels: productKeys.map((productKey) => ({ model, region, productKey })) };
@@ -111,7 +74,7 @@ function panelState(model, region, productKey) {
 }
 
 function selectedProduct(panel) {
-  return (products[panel.model] || []).find((item) => `${item.level}/${item.id}` === panel.productKey) || products[panel.model][0];
+  return productsFor(panel).find((item) => `${item.level}/${item.id}` === panel.productKey) || productsFor(panel)[0];
 }
 
 function endpoint(panel, requestedRun = panel.requestedRun) {
@@ -148,12 +111,12 @@ function buildPanels() {
       markConfigurationCustom();
       panel.model = panel.dom.model.value;
       if (!(regionSets[panel.model] || []).includes(panel.region)) panel.region = (regionSets[panel.model] || ["NIL"])[0];
-      const preferred = (products[panel.model] || []).find((item) => item.id === "radar") || products[panel.model][0];
+      const preferred = productsFor(panel).find((item) => item.id === "radar") || productsFor(panel)[0];
       panel.productKey = `${preferred.level}/${preferred.id}`;
       panel.requestedRun = "0";
       refreshPanelControls(panel); loadPanel(index);
     });
-    panel.dom.region.addEventListener("change", (event) => { event.stopPropagation(); markConfigurationCustom(); panel.region = panel.dom.region.value; loadPanel(index); });
+    panel.dom.region.addEventListener("change", (event) => { event.stopPropagation(); markConfigurationCustom(); panel.region = panel.dom.region.value; refreshPanelControls(panel); loadPanel(index); });
     els.panelGrid.appendChild(article);
   });
   selectPanel(0);
@@ -163,6 +126,7 @@ function refreshPanelControls(panel) {
   panel.dom.region.innerHTML = (regionSets[panel.model] || []).map((id) => `<option value="${id}">${regionNames[id] || id}</option>`).join("");
   panel.dom.region.value = panel.region;
   const product = selectedProduct(panel);
+  panel.productKey = `${product.level}/${product.id}`;
   panel.dom.product.textContent = `${levelNames[product.level] || product.level} · ${product.label}`;
   panel.dom.product.title = `Choose product: ${product.label}`;
 }
@@ -341,9 +305,10 @@ function applyConfiguration(name) {
   state.validTime = null;
   saved.panels.forEach((configuration, index) => {
     const panel = state.panels[index];
+    if (configuration.model === "NAMNST") configuration = { ...configuration, model: "RRFS" };
     panel.model = modelOrder.includes(configuration.model) ? configuration.model : "GFS";
     panel.region = (regionSets[panel.model] || []).includes(configuration.region) ? configuration.region : (regionSets[panel.model] || ["US"])[0];
-    const product = (products[panel.model] || []).find((item) => `${item.level}/${item.id}` === configuration.productKey) || products[panel.model][0];
+    const product = productsFor(panel).find((item) => `${item.level}/${item.id}` === configuration.productKey) || productsFor(panel)[0];
     panel.productKey = `${product.level}/${product.id}`;
     panel.requestedRun = "0";
     panel.dom.model.value = panel.model;
@@ -379,7 +344,11 @@ function openInSingleViewer(index) {
     product: product.id
   });
   if (valid) params.set("valid", String(valid));
-  window.open(`../forecast/index.html?${params.toString()}`, "_blank", "noopener");
+  const legacyModels = ["HRRR", "RAP", "NAM", "GFS", "ECMWF", "RDPS", "GDPS", "GEFS"];
+  const target = legacyModels.includes(panel.model)
+    ? `../forecast/index.html?${params.toString()}`
+    : `https://weather.cod.edu/forecast/?parms=${[panel.run || "current", panel.model, panel.region, product.level, product.id, Number(forecastHour(panel.frames[panel.index])) || 0, 0, 100].join("-")}`;
+  window.open(target, "_blank", "noopener");
 }
 
 function updateTimeControls() {
@@ -446,10 +415,10 @@ function applyGlobalModel(model) {
     const previousProduct = selectedProduct(panel);
     panel.model = model;
     panel.region = (regionSets[model] || []).includes(panel.region) ? panel.region : ((regionSets[model] || []).includes("US") ? "US" : (regionSets[model] || ["NIL"])[0]);
-    const product = (products[model] || []).find((item) => item.level === previousProduct.level && item.id === previousProduct.id)
-      || (products[model] || []).find((item) => item.id === previousProduct.id)
-      || (products[model] || []).find((item) => item.id === "radar")
-      || products[model][0];
+    const product = productsFor(panel).find((item) => item.level === previousProduct.level && item.id === previousProduct.id)
+      || productsFor(panel).find((item) => item.id === previousProduct.id)
+      || productsFor(panel).find((item) => item.id === "radar")
+      || productsFor(panel)[0];
     panel.productKey = `${product.level}/${product.id}`;
     panel.requestedRun = "0";
     panel.dom.model.value = model;
@@ -466,7 +435,7 @@ function applyGlobalRegion(region) {
   state.panels.forEach((panel, index) => {
     if (!(regionSets[panel.model] || []).includes(region)) return;
     panel.region = region;
-    panel.dom.region.value = region;
+    refreshPanelControls(panel);
     loadPanel(index);
     changed += 1;
   });
@@ -527,7 +496,7 @@ function openProductPicker(index) {
   els.pickerTitle.textContent = `Panel ${index + 1}: Choose Product`;
   els.productGroups.innerHTML = "";
   const groups = new Map();
-  (products[panel.model] || []).forEach((product) => {
+  productsFor(panel).forEach((product) => {
     if (!groups.has(product.level)) groups.set(product.level, []);
     groups.get(product.level).push(product);
   });

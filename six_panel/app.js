@@ -77,8 +77,7 @@ const els = {
   app: document.getElementById("app"), panelGrid: document.getElementById("panelGrid"), status: document.getElementById("status"),
   slider: document.getElementById("frameSlider"), validTime: document.getElementById("validTime"), playIcon: document.getElementById("playIcon"),
   picker: document.getElementById("productPicker"), pickerTitle: document.getElementById("pickerTitle"), productGroups: document.getElementById("productGroups"),
-  configurationSelect: document.getElementById("configurationSelect"), deleteConfiguration: document.getElementById("deleteConfiguration"),
-  globalRun: document.getElementById("globalRun"), globalModel: document.getElementById("globalModel"), globalRegion: document.getElementById("globalRegion")
+  configurationSelect: document.getElementById("configurationSelect"), deleteConfiguration: document.getElementById("deleteConfiguration")
 };
 
 function panelState(model, region, productKey) {
@@ -154,15 +153,14 @@ function selectPanel(index) {
   updateTimeControls();
 }
 
-function initializeGlobalControls() {
-  els.globalModel.innerHTML = '<option value="">Choose model...</option>' + modelOrder.map((id) => `<option value="${id}">${modelLabels[id]}</option>`).join("");
-  const allRegions = [...new Set(Object.values(regionSets).flat())].sort((a, b) => (regionNames[a] || a).localeCompare(regionNames[b] || b));
-  els.globalRegion.innerHTML = '<option value="">Choose sector...</option>' + allRegions.map((id) => `<option value="${id}">${regionNames[id] || id}</option>`).join("");
-}
-
 async function loadPanel(index) {
   const panel = state.panels[index];
   const request = ++panel.request;
+  panel.frames = [];
+  panel.validtimes = [];
+  panel.index = 0;
+  panel.dom.frame.textContent = "Waiting for frames";
+  panel.dom.run.textContent = "";
   panel.dom.message.hidden = false;
   panel.dom.message.textContent = "Loading COD frames...";
   panel.dom.image.removeAttribute("src");
@@ -251,7 +249,7 @@ async function loadPanel(index) {
       panel.dom.message.textContent = `No ${modelLabels[panel.model]} frames for ${regionNames[panel.region] || panel.region} / ${selectedProduct(panel).label}.`;
     } else {
       panel.dom.message.hidden = true;
-      if (state.validTime == null && index === state.active) state.validTime = Number(panel.validtimes[panel.index]) || null;
+      if (state.validTime == null && index === state.active) setValidFromActive(panel.index);
     }
     renderPanel(index);
   } catch (error) {
@@ -422,27 +420,6 @@ function updateTimeControls() {
   els.slider.max = String(Math.max(0, panel.frames.length - 1));
   els.slider.value = String(panel.index);
   els.validTime.value = state.validTime ? `Valid ${formatValid(state.validTime)}` : "Valid time unavailable";
-  renderRunOptions();
-}
-
-function renderRunOptions() {
-  const panel = state.panels[state.active];
-  const actualRun = panel.run;
-  const selectedRun = panel.requestedRun;
-  els.globalRun.innerHTML = `<option value="0">${actualRun ? `Latest (${formatRun(actualRun)})` : "Latest run"}</option>`;
-  buildRunCandidates(actualRun, panel.model).slice(1, 9).forEach((run) => {
-    const option = document.createElement("option");
-    option.value = run;
-    option.textContent = formatRun(run);
-    els.globalRun.appendChild(option);
-  });
-  if (selectedRun !== "0" && ![...els.globalRun.options].some((option) => option.value === selectedRun)) {
-    const option = document.createElement("option");
-    option.value = selectedRun;
-    option.textContent = formatRun(selectedRun);
-    els.globalRun.appendChild(option);
-  }
-  els.globalRun.value = selectedRun;
 }
 
 function buildRunCandidates(run, model) {
@@ -467,9 +444,12 @@ function closestRunForModel(run, model) {
 }
 
 function applyGlobalRun(run) {
+  markConfigurationCustom();
+  setPlaying(false);
+  state.validTime = null;
   state.panels.forEach((panel, index) => {
     panel.runOffset = 0;
-      panel.extendedRun = false;
+    panel.extendedRun = false;
     panel.requestedRun = run === "0" ? "0" : closestRunForModel(run, panel.model);
     loadPanel(index);
   });
@@ -478,6 +458,7 @@ function applyGlobalRun(run) {
 function applyGlobalModel(model) {
   if (!modelOrder.includes(model)) return;
   markConfigurationCustom();
+  setPlaying(false);
   state.validTime = null;
   state.panels.forEach((panel, index) => {
     const previousProduct = selectedProduct(panel);
@@ -489,13 +470,12 @@ function applyGlobalModel(model) {
       || productsFor(panel)[0];
     panel.productKey = `${product.level}/${product.id}`;
     panel.requestedRun = "0";
-      panel.runOffset = 0;
-      panel.extendedRun = false;
+    panel.runOffset = 0;
+    panel.extendedRun = false;
     panel.dom.model.value = model;
     refreshPanelControls(panel);
     loadPanel(index);
   });
-  els.globalModel.value = "";
 }
 
 function applyGlobalRegion(region) {
@@ -509,7 +489,6 @@ function applyGlobalRegion(region) {
     loadPanel(index);
     changed += 1;
   });
-  els.globalRegion.value = "";
   els.status.textContent = changed === state.panels.length
     ? `All panels changed to ${regionNames[region] || region}`
     : `${changed}/${state.panels.length} panels support ${regionNames[region] || region}`;
@@ -594,48 +573,94 @@ function openProductPicker(index) {
   els.picker.hidden = false;
 }
 
-let mapPickerTarget = null;
-let mapPickerReturnFocus = null;
-function openMapPicker(index = null) {
-  mapPickerTarget = index;
-  mapPickerReturnFocus = document.activeElement;
-  const ids = index == null
-    ? [...new Set(state.panels.flatMap(panel => regionSets[panel.model]))]
-    : regionSets[state.panels[index].model];
-  document.getElementById("mapPickerTitle").textContent = index == null ? "Change map: all panels" : `Change map: panel ${index + 1}`;
-  document.getElementById("mapPickerHelp").textContent = index == null
-    ? "Choose a region. Panels that do not support it keep their current map."
-    : "Choose a region for this panel.";
-  const options = document.getElementById("mapOptions");
+const choicePicker = document.getElementById("choicePicker");
+let choicePickerReturnFocus = null;
+
+function openChoicePicker(title, help, choices, apply) {
+  choicePickerReturnFocus = document.activeElement;
+  document.getElementById("choicePickerTitle").textContent = title;
+  document.getElementById("choicePickerHelp").textContent = help;
+  const options = document.getElementById("choiceOptions");
   options.replaceChildren();
-  ids.sort((a, b) => (regionNames[a] || a).localeCompare(regionNames[b] || b)).forEach(region => {
+  choices.forEach(({ value, label, selected }) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "product-option";
-    const supported = state.panels.filter(panel => regionSets[panel.model].includes(region)).length;
-    button.textContent = (regionNames[region] || region) + (index == null ? ` (${supported}/6 panels)` : "");
-    const selected = index == null ? state.panels.every(panel => panel.region === region) : state.panels[index].region === region;
+    button.textContent = label;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
     button.addEventListener("click", () => {
-      if (mapPickerTarget == null) applyGlobalRegion(region);
-      else {
-        const panel = state.panels[mapPickerTarget];
-        markConfigurationCustom();
-        panel.region = region;
-        refreshPanelControls(panel);
-        loadPanel(mapPickerTarget);
-      }
-      closeMapPicker();
+      closeChoicePicker();
+      apply(value);
     });
     options.appendChild(button);
   });
-  document.getElementById("mapPicker").hidden = false;
-  options.querySelector("button")?.focus();
+  choicePicker.hidden = false;
+  (options.querySelector(".active") || options.querySelector("button"))?.focus();
 }
-function closeMapPicker() {
-  document.getElementById("mapPicker").hidden = true;
-  mapPickerReturnFocus?.focus();
+
+function closeChoicePicker() {
+  choicePicker.hidden = true;
+  choicePickerReturnFocus?.focus();
+}
+
+function openMapPicker(index = null) {
+  const panels = index == null ? state.panels : [state.panels[index]];
+  const ids = [...new Set(panels.flatMap(panel => regionSets[panel.model]))];
+  const choices = ids.sort((a, b) => (regionNames[a] || a).localeCompare(regionNames[b] || b)).map(region => {
+    const supported = panels.filter(panel => regionSets[panel.model].includes(region)).length;
+    return {
+      value: region,
+      label: (regionNames[region] || region) + (index == null ? " (" + supported + "/" + panels.length + " panels)" : ""),
+      selected: panels.every(panel => panel.region === region)
+    };
+  });
+  openChoicePicker(
+    index == null ? "Change map: all panels" : "Change map: panel " + (index + 1),
+    index == null ? "Choose a region. Panels that do not support it keep their current map." : "Choose a region for this panel.",
+    choices,
+    region => {
+      if (index == null) {
+        applyGlobalRegion(region);
+        return;
+      }
+      const panel = state.panels[index];
+      markConfigurationCustom();
+      panel.region = region;
+      refreshPanelControls(panel);
+      loadPanel(index);
+    }
+  );
+}
+
+function openModelPicker() {
+  const choices = modelOrder.map(model => ({
+    value: model,
+    label: modelLabels[model],
+    selected: state.panels.every(panel => panel.model === model)
+  }));
+  openChoicePicker("Change model: all panels", "Choose a forecast model for all six panels.", choices, applyGlobalModel);
+}
+
+function openRunPicker() {
+  const models = new Set(state.panels.map(panel => panel.model));
+  const now = formatRunId(new Date());
+  const runs = new Set([...models].flatMap(model => buildRunCandidates(now, model)));
+  state.panels.forEach(panel => {
+    if (panel.run) runs.add(panel.run);
+    if (panel.requestedRun !== "0") runs.add(panel.requestedRun);
+  });
+  const choices = ["0", ...[...runs].sort().reverse()].map(run => ({
+    value: run,
+    label: run === "0" ? "Latest available run" : run.slice(0, 4) + "-" + run.slice(4, 6) + "-" + run.slice(6, 8) + " " + run.slice(8) + "Z",
+    selected: state.panels.every(panel => panel.runOffset === 0 && !panel.extendedRun && panel.requestedRun === (run === "0" ? run : closestRunForModel(run, panel.model)))
+  }));
+  openChoicePicker(
+    "Change run: all panels",
+    "Choose an initialization time (UTC). Each model uses its cycle at or before that time, or the latest available run if that cycle has no data.",
+    choices,
+    applyGlobalRun
+  );
 }
 
 function closeProductPicker() { els.picker.hidden = true; }
@@ -687,28 +712,26 @@ els.configurationSelect.addEventListener("change", () => {
   els.deleteConfiguration.disabled = !els.configurationSelect.value;
   if (els.configurationSelect.value) applyConfiguration(els.configurationSelect.value);
 });
-els.globalRun.addEventListener("change", () => applyGlobalRun(els.globalRun.value));
-els.globalModel.addEventListener("change", () => { if (els.globalModel.value) applyGlobalModel(els.globalModel.value); });
-els.globalRegion.addEventListener("change", () => { if (els.globalRegion.value) applyGlobalRegion(els.globalRegion.value); });
 document.getElementById("expandApp").addEventListener("click", toggleExpansion);
 document.getElementById("closePicker").addEventListener("click", closeProductPicker);
 els.picker.addEventListener("click", (event) => { if (event.target === els.picker) closeProductPicker(); });
 els.slider.addEventListener("input", () => setValidFromActive(Number(els.slider.value)));
 document.getElementById("changeAllMaps").addEventListener("click", () => openMapPicker());
-document.getElementById("closeMapPicker").addEventListener("click", closeMapPicker);
-document.getElementById("mapPicker").addEventListener("click", event => {
-  if (event.target === document.getElementById("mapPicker")) closeMapPicker();
+document.getElementById("changeAllModels").addEventListener("click", openModelPicker);
+document.getElementById("changeAllRuns").addEventListener("click", openRunPicker);
+document.getElementById("closeChoicePicker").addEventListener("click", closeChoicePicker);
+choicePicker.addEventListener("click", event => {
+  if (event.target === choicePicker) closeChoicePicker();
 });
 // Release completed dropdown choices so the next arrow navigates the forecast.
 document.addEventListener("change", event => {
   if (event.target?.tagName === "SELECT") queueMicrotask(() => event.target.blur());
 }, true);
 document.addEventListener("keydown", event => {
-  const mapPicker = document.getElementById("mapPicker");
-  if (!mapPicker.hidden) {
-    if (event.key === "Escape") { event.preventDefault(); closeMapPicker(); }
+  if (!choicePicker.hidden) {
+    if (event.key === "Escape") { event.preventDefault(); closeChoicePicker(); }
     if (event.key === "Tab") {
-      const buttons = [...mapPicker.querySelectorAll("button")];
+      const buttons = [...choicePicker.querySelectorAll("button")];
       const first = buttons[0], last = buttons[buttons.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
@@ -721,6 +744,7 @@ document.addEventListener("keydown", event => {
   const editing = target?.isContentEditable || target?.tagName === "TEXTAREA"
     || (target?.tagName === "INPUT" && !["range", "button", "checkbox", "radio"].includes(target.type));
   if (editing || target?.tagName === "SELECT") return;
+  if (event.key === " " && target?.closest("button")) return;
   if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
     event.preventDefault();
     moveFrame(event.key === "ArrowRight" ? 1 : -1);
@@ -732,7 +756,6 @@ document.addEventListener("keydown", event => {
 }, true);
 
 buildPanels();
-initializeGlobalControls();
 seedBuiltInConfigurations();
 renderConfigurationOptions("GFS US");
 state.panels.forEach((_, index) => loadPanel(index));

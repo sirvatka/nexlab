@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#05070a">
   <title>NexLab Six Panel Models</title>
-  <link rel="stylesheet" href="styles.css?v=20261124-controls">
+  <link rel="stylesheet" href="styles.css?v=20261124-all-panels">
 </head>
 <body>
   <main id="app" class="app">
@@ -16,7 +16,11 @@
       </div>
       <div id="status" class="status">Loading six panels...</div>
       <div class="top-actions">
-        <button id="changeAllMaps" class="map-button global-map-button" type="button">Map: all panels</button>
+        <div class="bulk-actions" role="group" aria-label="All panels">
+          <button id="changeAllMaps" class="map-button global-map-button" type="button">Map: all panels</button>
+          <button id="changeAllModels" class="map-button global-map-button" type="button">Model: all panels</button>
+          <button id="changeAllRuns" class="map-button global-map-button" type="button">Run: all panels</button>
+        </div>
         <select id="configurationSelect" class="configuration-select" aria-label="Saved configurations">
           <option value="">Saved configurations</option>
         </select>
@@ -49,27 +53,15 @@
           <svg viewBox="0 0 24 24"><path d="m9 6 8 6-8 6V6Z"/></svg>
         </button>
       </div>
-      <div class="global-controls" role="group" aria-label="Global panel controls">
-        <span class="global-controls-title">All panels</span>
-        <label class="global-control"><span>Run</span><select id="globalRun" aria-label="Run time for all panels" title="Change run time for all panels">
-          <option value="0">Latest run</option>
-        </select></label>
-        <label class="global-control"><span>Model</span><select id="globalModel" aria-label="Model for all panels" title="Change all six models">
-          <option value="">Choose model...</option>
-        </select></label>
-        <label class="global-control"><span>Sector</span><select id="globalRegion" aria-label="Sector for all panels" title="Change all supported sectors">
-          <option value="">Choose sector...</option>
-        </select></label>
-      </div>
       <input id="frameSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Valid time">
       <output id="validTime">Valid time unavailable</output>
     </footer>
 
-    <div id="mapPicker" class="picker-backdrop" hidden>
-      <section class="product-picker map-picker" role="dialog" aria-modal="true" aria-labelledby="mapPickerTitle">
-        <header><h2 id="mapPickerTitle">Change map</h2><button id="closeMapPicker" class="icon-button" type="button" aria-label="Close map picker">&#215;</button></header>
-        <p id="mapPickerHelp" class="map-picker-help"></p>
-        <div id="mapOptions" class="map-options"></div>
+    <div id="choicePicker" class="picker-backdrop" hidden>
+      <section class="product-picker map-picker" role="dialog" aria-modal="true" aria-labelledby="choicePickerTitle" aria-describedby="choicePickerHelp">
+        <header><h2 id="choicePickerTitle">Change map</h2><button id="closeChoicePicker" class="icon-button" type="button" aria-label="Close picker">&#215;</button></header>
+        <p id="choicePickerHelp" class="map-picker-help"></p>
+        <div id="choiceOptions" class="map-options"></div>
       </section>
     </div>
     <div id="productPicker" class="picker-backdrop" hidden>
@@ -88,6 +80,6 @@
     </div>
   </main>
   <script src="model-catalog.js?v=20261123"></script>
-  <script src="app.js?v=20261124-controls"></script>
+  <script src="app.js?v=20261124-all-panels"></script>
 </body>
 </html>

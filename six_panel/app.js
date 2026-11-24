@@ -99,9 +99,9 @@ function buildPanels() {
   state.panels.forEach((panel, index) => {
     const article = document.createElement("article");
     article.className = "model-panel";
-    article.innerHTML = `<header class="panel-head"><span class="panel-number">${index + 1}</span><select class="model-select" aria-label="Panel ${index + 1} model"></select><select class="region-select" aria-label="Panel ${index + 1} sector"></select><button class="product-button" type="button"></button></header><div class="image-stage"><img class="panel-image" alt="Panel ${index + 1} forecast image"><div class="panel-message">Loading COD frames...</div></div><footer class="panel-caption"><span class="frame-caption">Waiting for frames</span><span class="run-caption">Latest run</span></footer>`;
+    article.innerHTML = `<header class="panel-head"><span class="panel-number">${index + 1}</span><select class="model-select" aria-label="Panel ${index + 1} model"></select><select class="region-select" aria-label="Panel ${index + 1} sector" hidden></select><button class="map-button panel-map-button" type="button" aria-label="Change panel ${index + 1} map"></button><button class="product-button" type="button"></button></header><div class="image-stage"><img class="panel-image" alt="Panel ${index + 1} forecast image"><div class="panel-message">Loading COD frames...</div></div><footer class="panel-caption"><span class="frame-caption">Waiting for frames</span><span class="run-caption">Latest run</span></footer>`;
     panel.dom = {
-      article, model: article.querySelector(".model-select"), region: article.querySelector(".region-select"), product: article.querySelector(".product-button"),
+      article, model: article.querySelector(".model-select"), region: article.querySelector(".region-select"), map: article.querySelector(".panel-map-button"), product: article.querySelector(".product-button"),
       stage: article.querySelector(".image-stage"), image: article.querySelector(".panel-image"), message: article.querySelector(".panel-message"),
       frame: article.querySelector(".frame-caption"), run: article.querySelector(".run-caption")
     };
@@ -117,6 +117,7 @@ function buildPanels() {
       event.stopPropagation();
       selectPanel(index);
     });
+    panel.dom.map.addEventListener("click", (event) => { event.stopPropagation(); selectPanel(index); openMapPicker(index); });
     panel.dom.product.addEventListener("click", (event) => { event.stopPropagation(); selectPanel(index); openProductPicker(index); });
     panel.dom.model.addEventListener("change", (event) => {
       event.stopPropagation();
@@ -139,6 +140,8 @@ function buildPanels() {
 function refreshPanelControls(panel) {
   panel.dom.region.innerHTML = (regionSets[panel.model] || []).map((id) => `<option value="${id}">${regionNames[id] || id}</option>`).join("");
   panel.dom.region.value = panel.region;
+  panel.dom.map.textContent = `Map: ${regionNames[panel.region] || panel.region}`;
+  panel.dom.map.title = `Change this panel map (${regionNames[panel.region] || panel.region})`;
   const product = selectedProduct(panel);
   panel.productKey = `${product.level}/${product.id}`;
   panel.dom.product.textContent = `${levelNames[product.level] || product.level} · ${product.label}`;
@@ -591,6 +594,50 @@ function openProductPicker(index) {
   els.picker.hidden = false;
 }
 
+let mapPickerTarget = null;
+let mapPickerReturnFocus = null;
+function openMapPicker(index = null) {
+  mapPickerTarget = index;
+  mapPickerReturnFocus = document.activeElement;
+  const ids = index == null
+    ? [...new Set(state.panels.flatMap(panel => regionSets[panel.model]))]
+    : regionSets[state.panels[index].model];
+  document.getElementById("mapPickerTitle").textContent = index == null ? "Change map: all panels" : `Change map: panel ${index + 1}`;
+  document.getElementById("mapPickerHelp").textContent = index == null
+    ? "Choose a region. Panels that do not support it keep their current map."
+    : "Choose a region for this panel.";
+  const options = document.getElementById("mapOptions");
+  options.replaceChildren();
+  ids.sort((a, b) => (regionNames[a] || a).localeCompare(regionNames[b] || b)).forEach(region => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "product-option";
+    const supported = state.panels.filter(panel => regionSets[panel.model].includes(region)).length;
+    button.textContent = (regionNames[region] || region) + (index == null ? ` (${supported}/6 panels)` : "");
+    const selected = index == null ? state.panels.every(panel => panel.region === region) : state.panels[index].region === region;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+    button.addEventListener("click", () => {
+      if (mapPickerTarget == null) applyGlobalRegion(region);
+      else {
+        const panel = state.panels[mapPickerTarget];
+        markConfigurationCustom();
+        panel.region = region;
+        refreshPanelControls(panel);
+        loadPanel(mapPickerTarget);
+      }
+      closeMapPicker();
+    });
+    options.appendChild(button);
+  });
+  document.getElementById("mapPicker").hidden = false;
+  options.querySelector("button")?.focus();
+}
+function closeMapPicker() {
+  document.getElementById("mapPicker").hidden = true;
+  mapPickerReturnFocus?.focus();
+}
+
 function closeProductPicker() { els.picker.hidden = true; }
 
 function closestIndex(target, validtimes) {
@@ -647,16 +694,42 @@ document.getElementById("expandApp").addEventListener("click", toggleExpansion);
 document.getElementById("closePicker").addEventListener("click", closeProductPicker);
 els.picker.addEventListener("click", (event) => { if (event.target === els.picker) closeProductPicker(); });
 els.slider.addEventListener("input", () => setValidFromActive(Number(els.slider.value)));
-document.addEventListener("keydown", (event) => {
+document.getElementById("changeAllMaps").addEventListener("click", () => openMapPicker());
+document.getElementById("closeMapPicker").addEventListener("click", closeMapPicker);
+document.getElementById("mapPicker").addEventListener("click", event => {
+  if (event.target === document.getElementById("mapPicker")) closeMapPicker();
+});
+// Release completed dropdown choices so the next arrow navigates the forecast.
+document.addEventListener("change", event => {
+  if (event.target?.tagName === "SELECT") queueMicrotask(() => event.target.blur());
+}, true);
+document.addEventListener("keydown", event => {
+  const mapPicker = document.getElementById("mapPicker");
+  if (!mapPicker.hidden) {
+    if (event.key === "Escape") { event.preventDefault(); closeMapPicker(); }
+    if (event.key === "Tab") {
+      const buttons = [...mapPicker.querySelectorAll("button")];
+      const first = buttons[0], last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    return;
+  }
   if (event.key === "Escape" && !els.picker.hidden) { closeProductPicker(); return; }
-  if (!els.picker.hidden) return;
-  if (["INPUT", "SELECT", "TEXTAREA"].includes(event.target?.tagName) || event.target?.isContentEditable) return;
+  if (!els.picker.hidden || event.ctrlKey || event.metaKey || event.altKey) return;
+  const target = event.target;
+  const editing = target?.isContentEditable || target?.tagName === "TEXTAREA"
+    || (target?.tagName === "INPUT" && !["range", "button", "checkbox", "radio"].includes(target.type));
+  if (editing || target?.tagName === "SELECT") return;
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    event.preventDefault();
+    moveFrame(event.key === "ArrowRight" ? 1 : -1);
+    return;
+  }
   if (event.key === " ") { event.preventDefault(); setPlaying(!state.playing); }
   if (event.key.toLowerCase() === "x") { event.preventDefault(); toggleExpansion(); }
-  if (event.key === "ArrowLeft") { event.preventDefault(); moveFrame(-1); }
-  if (event.key === "ArrowRight") { event.preventDefault(); moveFrame(1); }
   if (["1", "2", "3", "4", "5", "6"].includes(event.key)) selectPanel(Number(event.key) - 1);
-});
+}, true);
 
 buildPanels();
 initializeGlobalControls();

@@ -154,6 +154,7 @@ function selectPanel(index) {
 }
 
 async function loadPanel(index) {
+  if (state.playing) setPlaying(false);
   const panel = state.panels[index];
   const request = ++panel.request;
   panel.frames = [];
@@ -164,6 +165,7 @@ async function loadPanel(index) {
   panel.dom.message.hidden = false;
   panel.dom.message.textContent = "Loading COD frames...";
   panel.dom.image.removeAttribute("src");
+  if (index === state.active) updateTimeControls();
   try {
     const requestedRun = panel.requestedRun;
     const fetchRun = async (run) => {
@@ -363,8 +365,6 @@ function saveCurrentConfiguration() {
 function applyConfiguration(name) {
   const saved = savedConfigurations()[name];
   if (!saved || !Array.isArray(saved.panels) || saved.panels.length !== state.panels.length) return;
-  setPlaying(false);
-  state.validTime = null;
   saved.panels.forEach((configuration, index) => {
     const panel = state.panels[index];
     if (configuration.model === "NAMNST") configuration = { ...configuration, model: "RRFS" };
@@ -417,6 +417,7 @@ function openInSingleViewer(index) {
 
 function updateTimeControls() {
   const panel = state.panels[state.active];
+  els.slider.disabled = !panel.frames.length;
   els.slider.max = String(Math.max(0, panel.frames.length - 1));
   els.slider.value = String(panel.index);
   els.validTime.value = state.validTime ? `Valid ${formatValid(state.validTime)}` : "Valid time unavailable";
@@ -445,8 +446,6 @@ function closestRunForModel(run, model) {
 
 function applyGlobalRun(run) {
   markConfigurationCustom();
-  setPlaying(false);
-  state.validTime = null;
   state.panels.forEach((panel, index) => {
     panel.runOffset = 0;
     panel.extendedRun = false;
@@ -458,8 +457,6 @@ function applyGlobalRun(run) {
 function applyGlobalModel(model) {
   if (!modelOrder.includes(model)) return;
   markConfigurationCustom();
-  setPlaying(false);
-  state.validTime = null;
   state.panels.forEach((panel, index) => {
     const previousProduct = selectedProduct(panel);
     panel.model = model;
@@ -496,8 +493,10 @@ function applyGlobalRegion(region) {
 
 function setValidFromActive(index) {
   const panel = state.panels[state.active];
-  panel.index = Math.max(0, Math.min(index, panel.frames.length - 1));
-  state.validTime = Number(panel.validtimes[panel.index]) || null;
+  const nextIndex = Math.max(0, Math.min(index, panel.frames.length - 1));
+  const validTime = Number(panel.validtimes[nextIndex]);
+  if (!panel.frames.length || !Number.isFinite(validTime)) return;
+  state.validTime = validTime;
   state.panels.forEach((item, panelIndex) => {
     item.index = closestIndex(state.validTime, item.validtimes);
     renderPanel(panelIndex);
